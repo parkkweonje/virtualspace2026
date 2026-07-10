@@ -116,6 +116,24 @@
       function li(arr) { return arr.map(function (x) { return "<li>" + x + "</li>"; }).join(""); }
       function pills(arr) { return arr.map(function (x) { return "<li>" + x + "</li>"; }).join(""); }
 
+      function recoBlock(arr) {
+        if (!arr || !arr.length) return "";
+        var items = arr.map(function (x) {
+          return '<div class="result-item fit" style="padding:11px 15px"><div><strong style="font-weight:600">' + x + "</strong></div></div>";
+        }).join("");
+        return '<h3 style="font-size:1.05rem;margin:22px 0 10px">🎓 추천 대학·전형 예시</h3>' +
+               '<div class="grid grid-2" style="gap:10px">' + items + "</div>";
+      }
+
+      function roadmapBlock(arr) {
+        if (!arr || !arr.length) return "";
+        var steps = arr.map(function (r) {
+          return '<div class="step"><div class="no" style="width:auto;padding:0 12px;border-radius:10px;font-size:.82rem;white-space:nowrap">' + r.phase + "</div>" +
+                 '<div><p style="margin:0;color:var(--ink-soft);font-size:.94rem">' + r.text + "</p></div></div>";
+        }).join("");
+        return '<h3 style="font-size:1.05rem;margin:22px 0 12px">🗓️ 시기별 로드맵</h3><div class="steps">' + steps + "</div>";
+      }
+
       function render() {
         var h = list[active];
         if (!h) { detail.innerHTML = "<div class='no-result'>데이터가 없습니다.</div>"; return; }
@@ -131,6 +149,8 @@
                 '<h3 style="font-size:1.05rem;margin:18px 0 8px">🎯 유리한 전형</h3><ul class="pill-list">' + pills(h.exams) + "</ul></div>" +
               '<div><h3 style="font-size:1.05rem;margin:0 0 8px">🧭 추천 전략</h3><ul style="color:var(--ink-soft);margin:0;padding-left:18px;font-size:.94rem;line-height:1.9">' + li(h.strategy) + "</ul></div>" +
             "</div>" +
+            recoBlock(h.recommend) +
+            roadmapBlock(h.roadmap) +
             '<div class="callout warn" style="margin-top:18px;font-size:.92rem">' + h.caution + "</div>" +
           "</div>";
       }
