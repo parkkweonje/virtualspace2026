@@ -89,6 +89,47 @@
     });
   });
 
+  /* ---- 공유 기능 (링크 복사 / 네이티브 공유 / SNS) ---- */
+  (function () {
+    var SITE = "https://daeip24.com";
+    var urlEl = document.getElementById("share-url");
+    if (!urlEl && !document.getElementById("copy-btn")) return;
+    var url = (urlEl && urlEl.textContent.trim()) || SITE;
+    var title = "입시나침반 | 수능·대학입시 정보";
+    var copyBtn = document.getElementById("copy-btn");
+    var shareBtn = document.getElementById("share-btn");
+    var xa = document.getElementById("share-x");
+    var fb = document.getElementById("share-fb");
+    if (xa) xa.href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(title) + "&url=" + encodeURIComponent(url);
+    if (fb) fb.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url);
+
+    function flash() {
+      if (!copyBtn) return;
+      var o = copyBtn.innerHTML;
+      copyBtn.innerHTML = "✅ 복사됨!";
+      setTimeout(function () { copyBtn.innerHTML = o; }, 1600);
+    }
+    function fallbackCopy() {
+      try {
+        var t = document.createElement("textarea");
+        t.value = url; t.style.position = "fixed"; t.style.opacity = "0";
+        document.body.appendChild(t); t.focus(); t.select();
+        document.execCommand("copy"); document.body.removeChild(t); flash();
+      } catch (e) { alert("공유 링크: " + url); }
+    }
+    function copy() {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(flash, fallbackCopy);
+      } else { fallbackCopy(); }
+    }
+    if (copyBtn) copyBtn.addEventListener("click", copy);
+    if (shareBtn) shareBtn.addEventListener("click", function () {
+      if (navigator.share) {
+        navigator.share({ title: title, text: title, url: url }).catch(function () {});
+      } else { copy(); }
+    });
+  })();
+
   /* ---- 스크롤 등장 애니메이션 ---- */
   const reveals = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window && reveals.length) {
