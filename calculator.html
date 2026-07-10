@@ -44,9 +44,17 @@
         <div class="card reveal">
           <h3 style="margin:0 0 16px">내 성적 입력</h3>
           <div class="field">
-            <label for="grade">내신 평균 등급</label>
+            <label for="stype">수험생 유형</label>
+            <select class="select" id="stype">
+              <option value="student">재학생 (내신 기준 · 수시)</option>
+              <option value="retaker">재수생 · N수생 (수능 기준 · 정시)</option>
+              <option value="ged">검정고시 출신 (수능 기준 · 정시)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="grade" id="grade-label">내신 평균 등급</label>
             <input class="input" type="number" id="grade" min="1" max="9" step="0.1" value="2.0" />
-            <span class="hint">1.0(최상위) ~ 9.0 사이, 소수점 1자리</span>
+            <span class="hint" id="grade-hint">1.0(최상위) ~ 9.0 사이, 소수점 1자리</span>
           </div>
           <div class="field">
             <label for="field">희망 계열</label>
@@ -58,7 +66,8 @@
             </select>
           </div>
           <button class="btn btn-primary" id="run" style="width:100%; justify-content:center">진단하기</button>
-          <div class="callout warn" style="margin-top:16px; font-size:.86rem">
+          <div class="callout" id="type-note" style="margin-top:16px; font-size:.86rem"></div>
+          <div class="callout warn" style="margin-top:12px; font-size:.86rem">
             결과는 <strong>예시 등급값</strong>에 기반한 참고용입니다. 실제 합격은 전형·모집단위·수능최저·경쟁률에 따라 크게 달라집니다.
           </div>
         </div>
@@ -104,23 +113,56 @@
     (function () {
       var gradeEl = document.getElementById("grade");
       var fieldEl = document.getElementById("field");
+      var typeEl = document.getElementById("stype");
       var runBtn = document.getElementById("run");
       var results = document.getElementById("results");
       var summary = document.getElementById("summary");
       var empty = document.getElementById("empty");
+      var gradeLabel = document.getElementById("grade-label");
+      var gradeHint = document.getElementById("grade-hint");
+      var typeNote = document.getElementById("type-note");
 
-      // 판정: 사용자 등급 vs 대학 예상 등급(낮을수록 상위)
+      // 수험생 유형별 설정
+      var TYPES = {
+        student: {
+          basis: "내신", label: "내신 평균 등급",
+          hint: "1.0(최상위) ~ 9.0 사이, 소수점 1자리",
+          note: "📗 <strong>재학생</strong>은 내신 기준으로 수시(교과·학종·지역인재)를 중심으로 진단합니다.",
+          scope: "수시(내신) 기준"
+        },
+        retaker: {
+          basis: "수능", label: "수능 평균 등급 (예상)",
+          hint: "국·수·영·탐 평균 등급 (1.0~9.0). 정시 기준 진단",
+          note: "🔁 <strong>재수생·N수생</strong>은 수능(정시) 중심으로 진단합니다. 내신이 좋으면 수능최저 교과전형도 백업 카드입니다.",
+          scope: "정시(수능) 기준"
+        },
+        ged: {
+          basis: "수능", label: "수능 평균 등급 (예상)",
+          hint: "국·수·영·탐 평균 등급 (1.0~9.0). 정시 기준 진단",
+          note: "📄 <strong>검정고시 출신</strong>은 학생부가 없어 정시(수능) 중심으로 진단합니다. 일부 대학 검정고시 반영 교과·논술은 개별 확인이 필요합니다.",
+          scope: "정시(수능) 기준"
+        }
+      };
+
       function classify(my, uni) {
-        var d = uni - my; // 양수면 내 성적이 더 좋음(여유)
+        var d = uni - my;
         if (d >= 0.4) return { key: "safe",  label: "안정", badge: "badge-green" };
         if (d >= -0.2) return { key: "fit",   label: "적정", badge: "badge-blue" };
         if (d >= -0.6) return { key: "reach", label: "도전", badge: "badge-amber" };
         return { key: "high", label: "상향", badge: "badge-red" };
       }
 
+      function syncType() {
+        var t = TYPES[typeEl.value] || TYPES.student;
+        gradeLabel.textContent = t.label;
+        gradeHint.textContent = t.hint;
+        typeNote.innerHTML = t.note;
+      }
+
       function run() {
+        var t = TYPES[typeEl.value] || TYPES.student;
         var my = parseFloat(gradeEl.value);
-        if (isNaN(my) || my < 1 || my > 9) { alert("내신 등급을 1.0~9.0 사이로 입력해 주세요."); return; }
+        if (isNaN(my) || my < 1 || my > 9) { alert((t.basis) + " 등급을 1.0~9.0 사이로 입력해 주세요."); return; }
         var want = fieldEl.value;
 
         var list = (window.UNIVERSITIES || []).filter(function (u) {
@@ -128,8 +170,6 @@
         }).map(function (u) {
           return { u: u, c: classify(my, u.grade) };
         });
-
-        // 정렬: 상위대학(낮은 grade) 순
         list.sort(function (a, b) { return a.u.grade - b.u.grade; });
 
         var count = { safe: 0, fit: 0, reach: 0, high: 0 };
@@ -139,14 +179,13 @@
         list.forEach(function (item) {
           count[item.c.key]++;
           var u = item.u, c = item.c;
-          // 게이지: 여유도 시각화 (0~100)
           var pct = Math.max(6, Math.min(100, Math.round((10 - (my - u.grade + 4)) / 8 * 100)));
           var div = document.createElement("div");
           div.className = "result-item " + c.key;
           div.innerHTML =
             "<div><strong>" + u.name + "</strong> " +
               '<span class="badge ' + c.badge + '">' + c.label + "</span>" +
-              '<div class="meta">📍 ' + u.region + " · " + u.type + " · 예상 내신 " + u.grade.toFixed(1) + "등급</div>" +
+              '<div class="meta">📍 ' + u.region + " · " + u.type + " · 예상 지원선 " + u.grade.toFixed(1) + "등급</div>" +
               '<div class="gauge" style="width:200px;max-width:40vw"><i style="width:' + pct + '%"></i></div>' +
             "</div>" +
             '<a class="btn btn-ghost" style="padding:8px 14px" href="' + u.site + '" target="_blank" rel="noopener">홈페이지 ↗</a>';
@@ -154,6 +193,7 @@
         });
 
         summary.innerHTML =
+          '<div class="stat" style="grid-column:1/-1;text-align:left"><div class="l" style="margin:0">진단 기준: <strong style="color:var(--primary)">' + t.scope + "</strong></div></div>" +
           statCard("안정", count.safe, "var(--ok)") +
           statCard("적정", count.fit, "var(--primary)") +
           statCard("도전", count.reach, "var(--warn)") +
@@ -165,7 +205,9 @@
       }
 
       runBtn.addEventListener("click", run);
+      typeEl.addEventListener("change", function () { syncType(); run(); });
       gradeEl.addEventListener("keydown", function (e) { if (e.key === "Enter") run(); });
+      syncType();
       run(); // 초기 실행
     })();
   </script>

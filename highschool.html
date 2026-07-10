@@ -125,6 +125,21 @@
                '<div class="grid grid-2" style="gap:10px">' + items + "</div>";
       }
 
+      function coursesBlock(arr) {
+        if (!arr || !arr.length) return "";
+        return '<h3 style="font-size:1.05rem;margin:22px 0 8px">📚 선택과목 · 학습 예시</h3>' +
+               '<ul style="color:var(--ink-soft);margin:0;padding-left:18px;font-size:.94rem;line-height:1.9">' + li(arr) + "</ul>";
+      }
+
+      function cutlineBlock(arr) {
+        if (!arr || !arr.length) return "";
+        var items = arr.map(function (c) {
+          return '<div class="result-item" style="padding:11px 15px;border-left-color:var(--primary)">' +
+                   '<div><strong>' + c.label + '</strong><div class="meta">' + c.note + "</div></div></div>";
+        }).join("");
+        return '<h3 style="font-size:1.05rem;margin:22px 0 10px">📊 지원 가능선 예시 <span style="font-weight:500;color:var(--muted);font-size:.8rem">(안내용 · 대학별 상이)</span></h3>' + items;
+      }
+
       function roadmapBlock(arr) {
         if (!arr || !arr.length) return "";
         var steps = arr.map(function (r) {
@@ -132,6 +147,25 @@
                  '<div><p style="margin:0;color:var(--ink-soft);font-size:.94rem">' + r.text + "</p></div></div>";
         }).join("");
         return '<h3 style="font-size:1.05rem;margin:22px 0 12px">🗓️ 시기별 로드맵</h3><div class="steps">' + steps + "</div>";
+      }
+
+      function faqBlock(arr) {
+        if (!arr || !arr.length) return "";
+        var items = arr.map(function (f) {
+          return '<div class="acc-item"><button class="acc-head" type="button" style="font-size:.98rem">Q. ' + f.q +
+                 ' <span class="plus">+</span></button><div class="acc-body"><div class="acc-body-inner">' + f.a + "</div></div></div>";
+        }).join("");
+        return '<h3 style="font-size:1.05rem;margin:24px 0 10px">❓ 자주 묻는 질문</h3><div class="accordion">' + items + "</div>";
+      }
+
+      function wireAccordion(scope) {
+        scope.querySelectorAll(".acc-head").forEach(function (head) {
+          head.addEventListener("click", function () {
+            var item = head.parentElement, body = item.querySelector(".acc-body");
+            if (item.classList.contains("open")) { item.classList.remove("open"); body.style.maxHeight = null; }
+            else { item.classList.add("open"); body.style.maxHeight = body.scrollHeight + "px"; }
+          });
+        });
       }
 
       function render() {
@@ -149,10 +183,14 @@
                 '<h3 style="font-size:1.05rem;margin:18px 0 8px">🎯 유리한 전형</h3><ul class="pill-list">' + pills(h.exams) + "</ul></div>" +
               '<div><h3 style="font-size:1.05rem;margin:0 0 8px">🧭 추천 전략</h3><ul style="color:var(--ink-soft);margin:0;padding-left:18px;font-size:.94rem;line-height:1.9">' + li(h.strategy) + "</ul></div>" +
             "</div>" +
+            coursesBlock(h.courses) +
+            cutlineBlock(h.cutline) +
             recoBlock(h.recommend) +
             roadmapBlock(h.roadmap) +
+            faqBlock(h.faq) +
             '<div class="callout warn" style="margin-top:18px;font-size:.92rem">' + h.caution + "</div>" +
           "</div>";
+        wireAccordion(detail);
       }
 
       render();
