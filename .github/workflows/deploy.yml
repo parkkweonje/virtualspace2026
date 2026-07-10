@@ -1,13 +1,13 @@
 name: Deploy to GitHub Pages
 
 # 정적 사이트(HTML/CSS/JS)를 GitHub Pages로 자동 배포합니다.
-# 최초 1회: 저장소 Settings ▸ Pages ▸ Source 를 "GitHub Actions"로 설정하세요.
+# main 브랜치에 push되면 자동 배포되며, 아래 configure-pages 의 enablement:true 로
+# 최초 실행 시 Pages 설정도 자동으로 켜집니다. (수동 설정 불필요)
 
 on:
   push:
     branches:
       - main
-      - claude/korean-exam-website-5usqf9
   workflow_dispatch:
 
 permissions:
@@ -32,6 +32,9 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          # Pages가 아직 켜져 있지 않으면 자동으로 활성화
+          enablement: true
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3

@@ -51,13 +51,15 @@ python3 -m http.server 8000
 
 ## 🌐 배포 (GitHub Pages)
 
-`.github/workflows/deploy.yml` 이 포함되어 있어, 지정 브랜치에 push하면
+`.github/workflows/deploy.yml` 이 포함되어 있어, **`main` 브랜치에 push되면**
 자동으로 GitHub Pages에 배포됩니다.
 
-**최초 1회 설정:**
-1. GitHub 저장소 → **Settings** → **Pages** 이동
-2. **Build and deployment** → **Source** 를 **GitHub Actions** 로 선택
-3. 이후 브랜치에 push하면 Actions가 자동 배포하고, 배포 URL이 생성됩니다.
+워크플로의 `configure-pages` 단계에 `enablement: true` 가 설정되어 있어,
+**최초 실행 시 Pages 설정이 자동으로 켜집니다** (별도 수동 설정 불필요).
+배포가 끝나면 Actions 로그와 저장소 **Settings → Pages** 에서 공개 URL을 확인할 수 있습니다.
+
+> 조직 정책 등으로 자동 활성화가 막혀 있다면, 저장소 **Settings → Pages → Source** 를
+> **GitHub Actions** 로 한 번만 수동 설정해 주세요.
 
 ## 🛠 기술 스택
 
