@@ -100,8 +100,21 @@
     var shareBtn = document.getElementById("share-btn");
     var xa = document.getElementById("share-x");
     var fb = document.getElementById("share-fb");
+    var threads = document.getElementById("share-threads");
+    var ig = document.getElementById("share-ig");
     if (xa) xa.href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(title) + "&url=" + encodeURIComponent(url);
     if (fb) fb.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url);
+    if (threads) threads.href = "https://www.threads.net/intent/post?text=" + encodeURIComponent(title + " " + url);
+    if (ig) ig.addEventListener("click", function () {
+      // 인스타그램은 웹 링크 공유가 없어 '링크 복사 후 붙여넣기' 방식으로 안내
+      var o = ig.innerHTML;
+      var note = function () { ig.innerHTML = "📋 링크 복사됨! 붙여넣기"; setTimeout(function () { ig.innerHTML = o; }, 2200); };
+      var go = function () { window.open("https://www.instagram.com/", "_blank", "noopener"); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () { note(); }, function () { note(); });
+      } else { fallbackCopy(); }
+      go();
+    });
 
     function flash() {
       if (!copyBtn) return;
