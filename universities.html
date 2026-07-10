@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>대학정보 | 입시나침반</title>
+  <meta name="description" content="주요 대학 소개와 지역·유형별 검색. 나에게 맞는 대학을 찾아보세요." />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html"><span class="logo">🧭</span><span>입시나침반 <small>대학입시 정보</small></span></a>
+      <button class="nav-toggle" aria-label="메뉴 열기">☰</button>
+      <ul class="nav-links">
+        <li><a href="index.html">홈</a></li>
+        <li><a href="jaso.html">자소서 작성</a></li>
+        <li><a href="universities.html">대학정보</a></li>
+        <li><a href="medical.html">의치한약수</a></li>
+        <li><a href="regional.html">지역의사제</a></li>
+        <li><a href="admission.html">입시전형</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">홈</a> › 대학정보</div>
+      <h1>🏛️ 대학정보</h1>
+      <p>주요 대학의 특징과 전형 성격을 지역·유형별로 살펴보세요. 대학명이나 지역으로 검색할 수 있습니다.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <!-- 검색 -->
+      <div class="search-box reveal" style="margin:0 auto 22px">
+        <span>🔍</span>
+        <input type="text" id="uni-search" placeholder="대학명·지역으로 검색 (예: 부산, 국립, 연세)" />
+      </div>
+
+      <!-- 필터 칩 -->
+      <div class="chips reveal" id="uni-filters" style="justify-content:center;margin-bottom:30px">
+        <button class="chip active" data-filter="all">전체</button>
+        <button class="chip" data-filter="서울">서울권</button>
+        <button class="chip" data-filter="국립">국립</button>
+        <button class="chip" data-filter="사립">사립</button>
+        <button class="chip" data-filter="거점국립">거점국립대</button>
+        <button class="chip" data-filter="이공계특성화">이공계특성화</button>
+      </div>
+
+      <div class="grid grid-3" id="uni-grid"></div>
+      <div class="no-result hidden" id="uni-empty">검색 결과가 없습니다. 다른 키워드를 입력해 보세요.</div>
+
+      <p class="footer-note text-center mt-3" style="color:var(--muted)">
+        ※ 수록 정보는 안내용 요약입니다. 정확한 모집요강·전형·경쟁률은 각 대학 입학처와 대입정보포털 ‘어디가(adiga.kr)’에서 확인하세요.
+      </p>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-brand"><span class="logo">🧭</span> 입시나침반</div><p class="footer-note">수능·대학입시 정보를 쉽고 정확하게 전하는 학습 정보 플랫폼입니다.</p></div>
+        <div><h4>입시 정보</h4><ul><li><a href="jaso.html">자소서 작성</a></li><li><a href="universities.html">대학정보</a></li><li><a href="admission.html">입시전형</a></li></ul></div>
+        <div><h4>계열 안내</h4><ul><li><a href="medical.html">의치한약수</a></li><li><a href="regional.html">지역의사제</a></li></ul></div>
+        <div><h4>공식 참고처</h4><ul><li><a href="https://www.adiga.kr" target="_blank" rel="noopener">대입정보포털 어디가</a></li><li><a href="https://www.kcue.or.kr" target="_blank" rel="noopener">대학교육협의회</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 입시나침반. 학습·정보 제공용 사이트입니다.</span><span>정확한 모집요강은 각 대학을 확인하세요.</span></div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    (function () {
+      var grid = document.getElementById("uni-grid");
+      var empty = document.getElementById("uni-empty");
+      var searchEl = document.getElementById("uni-search");
+      var filters = document.getElementById("uni-filters");
+      var activeFilter = "all";
+
+      function typeBadge(t) {
+        var map = { "국립": "badge-green", "사립": "badge-blue", "특수": "badge-amber" };
+        return '<span class="badge ' + (map[t] || "badge-gray") + '">' + t + "</span>";
+      }
+
+      function matches(u) {
+        // 필터
+        if (activeFilter !== "all") {
+          var f = activeFilter;
+          var ok = u.region === f || u.type === f || (u.tags || []).indexOf(f) >= 0;
+          if (!ok) return false;
+        }
+        // 검색어
+        var q = (searchEl.value || "").trim().toLowerCase();
+        if (!q) return true;
+        var hay = (u.name + " " + u.region + " " + u.type + " " + (u.tags || []).join(" ") + " " + u.desc).toLowerCase();
+        return hay.indexOf(q) >= 0;
+      }
+
+      function render() {
+        var list = (window.UNIVERSITIES || []).filter(matches);
+        grid.innerHTML = "";
+        empty.classList.toggle("hidden", list.length > 0);
+        list.forEach(function (u) {
+          var tags = (u.tags || []).map(function (t) { return '<span class="badge badge-gray">' + t + "</span>"; }).join("");
+          var card = document.createElement("div");
+          card.className = "card uni-card";
+          card.innerHTML =
+            '<div class="row"><h3>' + u.name + "</h3>" + typeBadge(u.type) + "</div>" +
+            '<div class="region">📍 ' + u.region + "</div>" +
+            "<p style='margin:4px 0;color:var(--ink-soft);font-size:.92rem'>" + u.desc + "</p>" +
+            '<div class="tags">' + tags + "</div>" +
+            '<div class="links"><a href="' + u.site + '" target="_blank" rel="noopener">공식 홈페이지 ↗</a></div>';
+          grid.appendChild(card);
+        });
+      }
+
+      searchEl.addEventListener("input", render);
+      filters.addEventListener("click", function (e) {
+        var btn = e.target.closest(".chip");
+        if (!btn) return;
+        filters.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("active"); });
+        btn.classList.add("active");
+        activeFilter = btn.dataset.filter;
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
