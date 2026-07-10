@@ -375,6 +375,7 @@ table.data td.num { font-variant-numeric: tabular-nums; text-align: right; }
   font-weight: 800;
 }
 .step .no::before { content: counter(step); }
+.step .no.plain::before { content: none; }
 .step h4 { margin: 4px 0 4px; font-size: 1.05rem; }
 .step p { margin: 0; color: var(--ink-soft); font-size: .95rem; }
 
