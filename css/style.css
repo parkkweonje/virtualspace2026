@@ -470,6 +470,28 @@ table.data td.num { font-variant-numeric: tabular-nums; text-align: right; }
 
 .no-result { text-align: center; color: var(--muted); padding: 40px 0; }
 
+/* ---------- 아티클(칼럼) 본문 ---------- */
+.prose { max-width: 760px; margin: 0 auto; }
+.prose .lead { font-size: 1.14rem; color: var(--ink); margin: 0 0 20px; line-height: 1.8; }
+.prose h2 { font-size: 1.35rem; letter-spacing: -.02em; margin: 36px 0 12px; }
+.prose h3 { font-size: 1.1rem; margin: 26px 0 8px; }
+.prose p { margin: 0 0 15px; color: var(--ink-soft); font-size: 1.02rem; line-height: 1.85; }
+.prose ul, .prose ol { margin: 0 0 16px; padding-left: 22px; color: var(--ink-soft); line-height: 1.9; }
+.prose li { margin: 5px 0; }
+.prose strong { color: var(--ink); }
+.prose blockquote { border-left: 4px solid var(--primary); background: var(--primary-light); margin: 20px 0; padding: 14px 20px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; color: var(--ink-soft); }
+.article-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: .9rem; margin-top: 10px; }
+
+/* 칼럼 목록 카드 */
+.col-card { display: flex; flex-direction: column; height: 100%; }
+.col-card .cat { align-self: flex-start; }
+.col-card h3 { margin: 10px 0 6px; font-size: 1.12rem; letter-spacing: -.02em; }
+.col-card p { margin: 0 0 12px; color: var(--ink-soft); font-size: .94rem; flex: 1; }
+.col-card .more { font-weight: 700; color: var(--primary); font-size: .9rem; }
+
+/* 광고 슬롯 (애드센스 승인 후 노출) */
+.ad-slot { max-width: 760px; margin: 26px auto; min-height: 90px; border: 1px dashed var(--line); border-radius: var(--radius-sm); display: grid; place-items: center; color: var(--muted); font-size: .82rem; background: #fbfbfe; }
+
 /* ---------- Forms ---------- */
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
 .field label { font-weight: 700; font-size: .9rem; color: var(--ink); }
