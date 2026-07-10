@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>지역의사제 · 지역인재전형 | 입시나침반</title>
+  <meta name="description" content="지역의사제와 지역인재전형의 개념·자격조건·권역별 대학을 쉽게 정리했습니다." />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html"><span class="logo">🧭</span><span>입시나침반 <small>대학입시 정보</small></span></a>
+      <button class="nav-toggle" aria-label="메뉴 열기">☰</button>
+      <ul class="nav-links">
+        <li><a href="index.html">홈</a></li>
+        <li><a href="jaso.html">자소서 작성</a></li>
+        <li><a href="universities.html">대학정보</a></li>
+        <li><a href="medical.html">의치한약수</a></li>
+        <li><a href="regional.html">지역의사제</a></li>
+        <li><a href="admission.html">입시전형</a></li>
+        <li><a href="calculator.html">합격진단</a></li>
+        <li><a href="compare.html">대학비교</a></li>
+        <li><a href="community.html">커뮤니티</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">홈</a> › 지역의사제</div>
+      <h1>📍 지역의사제 · 지역인재전형</h1>
+      <p>지역 의료 격차를 줄이기 위한 제도입니다. 개념부터 자격 조건, 권역별 대학까지 한 번에 정리했습니다.</p>
+    </div>
+  </section>
+
+  <!-- 개념 비교 -->
+  <section class="section">
+    <div class="container">
+      <div class="grid grid-2">
+        <div class="card reveal" style="border-top:4px solid var(--primary)">
+          <span class="badge badge-blue">제도 ①</span>
+          <h3 class="mt-1">지역인재전형이란?</h3>
+          <p style="color:var(--ink-soft)">해당 <strong>권역의 고등학교를 졸업</strong>(또는 졸업예정)한 학생만 지원할 수 있는 전형입니다. 「지방대학 육성법」에 따라 의·치·한·약·간호계열은 지역인재 <strong>일정 비율 이상 의무 선발</strong>합니다.</p>
+          <ul class="checklist" data-key="none" style="margin-top:12px">
+            <li style="cursor:default"><span class="box" style="border-color:var(--primary)"></span><span>해당 권역 중·고교 재학·졸업 요건 충족</span></li>
+            <li style="cursor:default"><span class="box" style="border-color:var(--primary)"></span><span>비수도권 의약계열은 지역인재 비율 확대(대체로 40% 이상, 강원·제주 일부 예외)</span></li>
+            <li style="cursor:default"><span class="box" style="border-color:var(--primary)"></span><span>수도권 대비 상대적으로 문이 넓을 수 있음</span></li>
+          </ul>
+        </div>
+        <div class="card reveal" style="border-top:4px solid var(--accent)">
+          <span class="badge badge-red">제도 ②</span>
+          <h3 class="mt-1">지역의사제란?</h3>
+          <p style="color:var(--ink-soft)">의대 정원 일부를 <strong>지역 근무를 조건으로 장학금과 함께 선발</strong>하고, 졸업 후 <strong>일정 기간(예: 약 10년) 해당 지역 의료기관에서 의무 근무</strong>하도록 하는 제도입니다. 지역 의료인력 확보를 목표로 도입·확대가 논의되고 있습니다.</p>
+          <ul class="checklist" data-key="none" style="margin-top:12px">
+            <li style="cursor:default"><span class="box" style="border-color:var(--accent)"></span><span>등록금·생활비 등 장학 지원 제공</span></li>
+            <li style="cursor:default"><span class="box" style="border-color:var(--accent)"></span><span>졸업 후 지정 지역·기관에서 의무 복무</span></li>
+            <li style="cursor:default"><span class="box" style="border-color:var(--accent)"></span><span>중도 이탈 시 장학금 환수·면허 관련 제재 논의</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout warn reveal mt-2">
+        <strong>참고 —</strong> 지역의사제는 세부 시행 방안(선발 규모·의무 복무 기간·적용 대학)이 정책에 따라 바뀔 수 있습니다. 지원 전 반드시 해당 연도 정부 발표와 대학 모집요강을 확인하세요.
+      </div>
+    </div>
+  </section>
+
+  <!-- 권역별 대학 -->
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="section-head" style="text-align:left;margin-left:0">
+        <span class="kicker">BY REGION</span>
+        <h2>권역별 지역인재 주요 대학</h2>
+        <p>본인의 출신 고교 권역을 확인하고, 지원 가능한 대학을 살펴보세요. (의약계열 보유 대학 중심 예시)</p>
+      </div>
+      <div class="grid grid-3" id="region-grid"></div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="section-head" style="text-align:left;margin-left:0">
+        <span class="kicker">FAQ</span>
+        <h2>자주 묻는 질문</h2>
+      </div>
+      <div class="accordion reveal">
+        <div class="acc-item">
+          <button class="acc-head">Q. 서울에서 학교를 다녔는데 지역인재로 지원할 수 있나요? <span class="plus">+</span></button>
+          <div class="acc-body"><div class="acc-body-inner"><p>지역인재전형은 <strong>해당 권역 내 고등학교(대체로 중학교부터) 재학·졸업</strong>을 요구합니다. 수도권 소재 학교 출신은 비수도권 지역인재전형 대상이 아닙니다. 세부 요건은 대학마다 다르니 모집요강을 확인하세요.</p></div></div>
+        </div>
+        <div class="acc-item">
+          <button class="acc-head">Q. 지역인재는 성적이 낮아도 되나요? <span class="plus">+</span></button>
+          <div class="acc-body"><div class="acc-body-inner"><p>일반전형보다 합격선이 다소 낮은 경향은 있지만, 여전히 <strong>최상위권 성적</strong>이 필요합니다. 특히 의대는 지역인재라 해도 경쟁이 매우 치열합니다.</p></div></div>
+        </div>
+        <div class="acc-item">
+          <button class="acc-head">Q. 지역의사제로 뽑히면 반드시 그 지역에서 일해야 하나요? <span class="plus">+</span></button>
+          <div class="acc-body"><div class="acc-body-inner"><p>네. 장학금 지원을 받는 대신 <strong>졸업 후 지정된 기간 동안 해당 지역 의료기관 근무</strong>가 조건입니다. 의무를 이행하지 않으면 장학금 환수 등 불이익이 따를 수 있습니다. 진로를 신중히 고려해 지원해야 합니다.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-brand"><span class="logo">🧭</span> 입시나침반</div><p class="footer-note">수능·대학입시 정보를 쉽고 정확하게 전하는 학습 정보 플랫폼입니다.</p></div>
+        <div><h4>입시 정보</h4><ul><li><a href="jaso.html">자소서 작성</a></li><li><a href="universities.html">대학정보</a></li><li><a href="admission.html">입시전형</a></li></ul></div>
+        <div><h4>계열 안내</h4><ul><li><a href="medical.html">의치한약수</a></li><li><a href="regional.html">지역의사제</a></li></ul></div>
+        <div><h4>공식 참고처</h4><ul><li><a href="https://www.adiga.kr" target="_blank" rel="noopener">대입정보포털 어디가</a></li><li><a href="https://www.kcue.or.kr" target="_blank" rel="noopener">대학교육협의회</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 입시나침반. 학습·정보 제공용 사이트입니다.</span><span>정확한 모집요강은 각 대학을 확인하세요.</span></div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    (function () {
+      var grid = document.getElementById("region-grid");
+      (window.REGIONAL.regions || []).forEach(function (r) {
+        var unis = r.unis.map(function (u) { return "<li>" + u + "</li>"; }).join("");
+        var card = document.createElement("div");
+        card.className = "card reveal";
+        card.innerHTML =
+          '<h3 style="margin:0 0 10px;font-size:1.08rem">📍 ' + r.name + "</h3>" +
+          '<ul class="pill-list">' + unis + "</ul>";
+        grid.appendChild(card);
+      });
+    })();
+  </script>
+</body>
+</html>

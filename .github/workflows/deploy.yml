@@ -1,0 +1,47 @@
+name: Deploy to GitHub Pages
+
+# 정적 사이트(HTML/CSS/JS)를 GitHub Pages로 자동 배포합니다.
+# main 브랜치에 push되면 자동 배포되며, 아래 configure-pages 의 enablement:true 로
+# 최초 실행 시 Pages 설정도 자동으로 켜집니다. (수동 설정 불필요)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 동시 배포 방지 (진행 중인 배포는 취소하지 않고 순차 처리)
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          # Pages가 아직 켜져 있지 않으면 자동으로 활성화
+          enablement: true
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 사이트 루트 전체를 업로드 (빌드 과정 없음)
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

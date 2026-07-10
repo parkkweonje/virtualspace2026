@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>커뮤니티 | 입시나침반</title>
+  <meta name="description" content="질문·정보·후기를 나누는 수험생 게시판. 함께 준비해요." />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html"><span class="logo">🧭</span><span>입시나침반 <small>대학입시 정보</small></span></a>
+      <button class="nav-toggle" aria-label="메뉴 열기">☰</button>
+      <ul class="nav-links">
+        <li><a href="index.html">홈</a></li>
+        <li><a href="jaso.html">자소서 작성</a></li>
+        <li><a href="universities.html">대학정보</a></li>
+        <li><a href="medical.html">의치한약수</a></li>
+        <li><a href="regional.html">지역의사제</a></li>
+        <li><a href="admission.html">입시전형</a></li>
+        <li><a href="calculator.html">합격진단</a></li>
+        <li><a href="compare.html">대학비교</a></li>
+        <li><a href="community.html">커뮤니티</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">홈</a> › 커뮤니티</div>
+      <h1>💬 수험생 커뮤니티</h1>
+      <p>질문·정보·후기를 자유롭게 나눠보세요. 작성한 글은 이 브라우저에 저장됩니다.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid" style="grid-template-columns: 380px 1fr; gap: 28px; align-items:start">
+        <!-- 글쓰기 -->
+        <div class="card reveal">
+          <h3 style="margin:0 0 16px">✏️ 글쓰기</h3>
+          <div class="form-row">
+            <div class="field">
+              <label for="nick">닉네임</label>
+              <input class="input" type="text" id="nick" maxlength="16" placeholder="예: 예비고3" />
+            </div>
+            <div class="field">
+              <label for="cat">카테고리</label>
+              <select class="select" id="cat">
+                <option value="질문">질문</option>
+                <option value="정보">정보</option>
+                <option value="후기">후기</option>
+                <option value="자유">자유</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="title">제목</label>
+            <input class="input" type="text" id="title" maxlength="60" placeholder="제목을 입력하세요" />
+          </div>
+          <div class="field">
+            <label for="body">내용</label>
+            <textarea class="textarea" id="body" maxlength="1000" placeholder="내용을 입력하세요"></textarea>
+          </div>
+          <button class="btn btn-primary" id="post-btn" style="width:100%; justify-content:center">등록하기</button>
+          <p class="hint" style="margin-top:12px; color:var(--muted)">※ 데모 게시판입니다. 글은 서버가 아닌 <strong>내 브라우저(localStorage)</strong>에만 저장됩니다.</p>
+        </div>
+
+        <!-- 목록 -->
+        <div class="reveal">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap">
+            <div class="chips" id="cat-filter">
+              <button class="chip active" data-cat="전체">전체</button>
+              <button class="chip" data-cat="질문">질문</button>
+              <button class="chip" data-cat="정보">정보</button>
+              <button class="chip" data-cat="후기">후기</button>
+              <button class="chip" data-cat="자유">자유</button>
+            </div>
+            <span class="hint" id="total" style="color:var(--muted)"></span>
+          </div>
+          <div id="list"></div>
+          <div class="no-result hidden" id="empty">아직 글이 없습니다. 첫 글을 남겨보세요!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-brand"><span class="logo">🧭</span> 입시나침반</div><p class="footer-note">수능·대학입시 정보를 쉽고 정확하게 전하는 학습 정보 플랫폼입니다.</p></div>
+        <div><h4>입시 도구</h4><ul><li><a href="calculator.html">합격진단</a></li><li><a href="compare.html">대학비교</a></li><li><a href="community.html">커뮤니티</a></li></ul></div>
+        <div><h4>계열 안내</h4><ul><li><a href="medical.html">의치한약수</a></li><li><a href="regional.html">지역의사제</a></li></ul></div>
+        <div><h4>공식 참고처</h4><ul><li><a href="https://www.adiga.kr" target="_blank" rel="noopener">대입정보포털 어디가</a></li><li><a href="https://www.kcue.or.kr" target="_blank" rel="noopener">대학교육협의회</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 입시나침반. 학습·정보 제공용 사이트입니다.</span><span>정확한 모집요강은 각 대학을 확인하세요.</span></div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    (function () {
+      var KEY = "community:posts";
+      var list = document.getElementById("list");
+      var empty = document.getElementById("empty");
+      var totalEl = document.getElementById("total");
+      var filter = document.getElementById("cat-filter");
+      var activeCat = "전체";
+      var seq = 0; // new-post ordering within session (Date.now 미사용 환경 대비)
+
+      var catBadge = { "질문": "badge-blue", "정보": "badge-green", "후기": "badge-amber", "자유": "badge-gray" };
+
+      function load() {
+        var posts;
+        try { posts = JSON.parse(localStorage.getItem(KEY)); } catch (e) { posts = null; }
+        if (!posts) {
+          posts = (window.SEED_POSTS || []).map(function (p, i) { return Object.assign({ id: "seed" + i }, p); });
+          save(posts);
+        }
+        return posts;
+      }
+      function save(posts) {
+        try { localStorage.setItem(KEY, JSON.stringify(posts)); } catch (e) {}
+      }
+
+      function esc(s) {
+        return String(s).replace(/[&<>"']/g, function (m) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+        });
+      }
+
+      function render() {
+        var posts = load().slice().reverse(); // 최신순
+        var shown = posts.filter(function (p) { return activeCat === "전체" || p.cat === activeCat; });
+        totalEl.textContent = "총 " + shown.length + "개";
+        list.innerHTML = "";
+        empty.classList.toggle("hidden", shown.length > 0);
+        shown.forEach(function (p) {
+          var el = document.createElement("div");
+          el.className = "post";
+          el.innerHTML =
+            '<div class="top"><span class="badge ' + (catBadge[p.cat] || "badge-gray") + '">' + esc(p.cat) + "</span>" +
+              "<strong>" + esc(p.nick || "익명") + "</strong></div>" +
+            "<h3>" + esc(p.title) + "</h3>" +
+            '<div class="body">' + esc(p.body) + "</div>" +
+            '<div class="foot"><span>' + esc(p.time || "") + "</span>" +
+              '<button class="del" data-id="' + p.id + '">🗑 삭제</button></div>';
+          list.appendChild(el);
+        });
+      }
+
+      function todayStr() {
+        // 브라우저 환경에서는 정상 동작; 표시는 YYYY-MM-DD
+        try {
+          var d = new Date();
+          var mm = ("0" + (d.getMonth() + 1)).slice(-2);
+          var dd = ("0" + d.getDate()).slice(-2);
+          return d.getFullYear() + "-" + mm + "-" + dd;
+        } catch (e) { return ""; }
+      }
+
+      document.getElementById("post-btn").addEventListener("click", function () {
+        var nick = document.getElementById("nick").value.trim() || "익명";
+        var cat = document.getElementById("cat").value;
+        var title = document.getElementById("title").value.trim();
+        var body = document.getElementById("body").value.trim();
+        if (!title) { alert("제목을 입력해 주세요."); return; }
+        if (!body) { alert("내용을 입력해 주세요."); return; }
+        var posts = load();
+        seq++;
+        posts.push({ id: "p" + posts.length + "_" + seq, nick: nick, cat: cat, title: title, body: body, time: todayStr() });
+        save(posts);
+        document.getElementById("title").value = "";
+        document.getElementById("body").value = "";
+        render();
+      });
+
+      list.addEventListener("click", function (e) {
+        var btn = e.target.closest(".del");
+        if (!btn) return;
+        if (!confirm("이 글을 삭제할까요?")) return;
+        var posts = load().filter(function (p) { return p.id !== btn.dataset.id; });
+        save(posts);
+        render();
+      });
+
+      filter.addEventListener("click", function (e) {
+        var btn = e.target.closest(".chip");
+        if (!btn) return;
+        filter.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("active"); });
+        btn.classList.add("active");
+        activeCat = btn.dataset.cat;
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
