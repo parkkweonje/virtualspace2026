@@ -14,6 +14,9 @@
 | `medical.html` | 의치한약수 — 의·치·한·약·수 계열별 학제·과목·모집대학 |
 | `regional.html` | 지역의사제 — 지역인재전형/지역의사제 개념, 권역별 대학, FAQ |
 | `admission.html` | 입시전형 — 수시·정시 구조, 전형별 설명, 연간 일정 |
+| `calculator.html` | 합격 진단 — 내신·계열 입력 → 안정/적정/도전/상향 진단 |
+| `compare.html` | 대학 비교표 — 관심 대학 선택 후 나란히 비교 |
+| `community.html` | 커뮤니티 — 질문·정보·후기 게시판(브라우저 저장) |
 
 ## 🗂 폴더 구조
 
@@ -45,6 +48,16 @@ open index.html          # macOS
 python3 -m http.server 8000
 # → 브라우저에서 http://localhost:8000 접속
 ```
+
+## 🌐 배포 (GitHub Pages)
+
+`.github/workflows/deploy.yml` 이 포함되어 있어, 지정 브랜치에 push하면
+자동으로 GitHub Pages에 배포됩니다.
+
+**최초 1회 설정:**
+1. GitHub 저장소 → **Settings** → **Pages** 이동
+2. **Build and deployment** → **Source** 를 **GitHub Actions** 로 선택
+3. 이후 브랜치에 push하면 Actions가 자동 배포하고, 배포 URL이 생성됩니다.
 
 ## 🛠 기술 스택
 

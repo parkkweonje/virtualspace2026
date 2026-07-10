@@ -1,7 +1,11 @@
 /* =========================================================
    데이터 모음 — 대학 / 의치한약수 / 입시일정
-   ※ 안내용 예시 데이터입니다. 실제 모집요강은 각 대학 및
+   ※ 안내용 예시 데이터입니다. 실제 모집요강·합격선은 각 대학 및
       한국대학교육협의회(대입정보포털 '어디가')에서 확인하세요.
+   ---------------------------------------------------------
+   university 필드 설명
+   - grade : 예상 합격 내신 등급(대략, 낮을수록 상위) — 진단 계산용 예시값
+   - field : 모집 계열 ["인문","자연","의약"]
    ========================================================= */
 
 // 수능일 (예시: 2027학년도 수능 — 매년 11월 셋째 주 목요일 가정)
@@ -16,24 +20,24 @@ window.KEY_DATES = [
 
 /* ---------------- 대학 정보 ---------------- */
 window.UNIVERSITIES = [
-  { name: "서울대학교", region: "서울", type: "국립", tags: ["최상위","연구중심"], site: "https://www.snu.ac.kr", desc: "국내 최고 수준의 종합 연구중심 대학. 지역균형·일반전형 운영." },
-  { name: "연세대학교", region: "서울", type: "사립", tags: ["최상위","SKY"], site: "https://www.yonsei.ac.kr", desc: "활동우수형·국제형 등 다양한 학생부종합전형 운영." },
-  { name: "고려대학교", region: "서울", type: "사립", tags: ["최상위","SKY"], site: "https://www.korea.ac.kr", desc: "학업우수·계열적합형 등 학종 중심 선발이 강함." },
-  { name: "성균관대학교", region: "서울", type: "사립", tags: ["상위권"], site: "https://www.skku.edu", desc: "융합형·계열모집 확대. 반도체·소프트웨어 특성화." },
-  { name: "한양대학교", region: "서울", type: "사립", tags: ["상위권","공학강세"], site: "https://www.hanyang.ac.kr", desc: "공학·자연계 강세. 학생부종합(추천형·서류형)." },
-  { name: "서강대학교", region: "서울", type: "사립", tags: ["상위권"], site: "https://www.sogang.ac.kr", desc: "소수정예·전공자율선택 확대." },
-  { name: "중앙대학교", region: "서울", type: "사립", tags: ["상위권"], site: "https://www.cau.ac.kr", desc: "다빈치형·탐구형 인재 학종 운영." },
-  { name: "경희대학교", region: "서울", type: "사립", tags: ["상위권"], site: "https://www.khu.ac.kr", desc: "네오르네상스전형 등 특색 학종. 한의대 보유." },
-  { name: "이화여자대학교", region: "서울", type: "사립", tags: ["여대","상위권"], site: "https://www.ewha.ac.kr", desc: "의대·약대 보유 종합 여자대학." },
-  { name: "카이스트(KAIST)", region: "대전", type: "특수", tags: ["이공계특성화"], site: "https://www.kaist.ac.kr", desc: "수시 위주 선발. 과학영재·일반전형. 등록금 지원." },
-  { name: "포스텍(POSTECH)", region: "포항", type: "특수", tags: ["이공계특성화"], site: "https://www.postech.ac.kr", desc: "단일계열 무학과 선발. 전원 수시 모집." },
-  { name: "부산대학교", region: "부산", type: "국립", tags: ["거점국립"], site: "https://www.pusan.ac.kr", desc: "지역거점국립대. 의대·치대 보유, 지역인재전형." },
-  { name: "경북대학교", region: "대구", type: "국립", tags: ["거점국립"], site: "https://www.knu.ac.kr", desc: "의대·치대·수의대 보유. 지역인재 선발 규모 큼." },
-  { name: "전남대학교", region: "광주", type: "국립", tags: ["거점국립"], site: "https://www.jnu.ac.kr", desc: "의대·치대·수의대 보유 호남권 거점국립대." },
-  { name: "충남대학교", region: "대전", type: "국립", tags: ["거점국립"], site: "https://www.cnu.ac.kr", desc: "의대·약대·수의대 보유. 지역인재전형 활발." },
-  { name: "전북대학교", region: "전주", type: "국립", tags: ["거점국립"], site: "https://www.jbnu.ac.kr", desc: "의대·치대·수의대 보유 거점국립대." },
-  { name: "강원대학교", region: "춘천", type: "국립", tags: ["거점국립"], site: "https://www.kangwon.ac.kr", desc: "의대·수의대 보유. 강원권 지역인재." },
-  { name: "제주대학교", region: "제주", type: "국립", tags: ["거점국립"], site: "https://www.jejunu.ac.kr", desc: "의대·수의대 보유. 제주권 지역인재." },
+  { name: "서울대학교", region: "서울", type: "국립", grade: 1.2, field: ["인문","자연","의약"], tags: ["최상위","연구중심"], site: "https://www.snu.ac.kr", desc: "국내 최고 수준의 종합 연구중심 대학. 지역균형·일반전형 운영." },
+  { name: "연세대학교", region: "서울", type: "사립", grade: 1.4, field: ["인문","자연","의약"], tags: ["최상위","SKY"], site: "https://www.yonsei.ac.kr", desc: "활동우수형·국제형 등 다양한 학생부종합전형 운영." },
+  { name: "고려대학교", region: "서울", type: "사립", grade: 1.4, field: ["인문","자연","의약"], tags: ["최상위","SKY"], site: "https://www.korea.ac.kr", desc: "학업우수·계열적합형 등 학종 중심 선발이 강함." },
+  { name: "성균관대학교", region: "서울", type: "사립", grade: 1.6, field: ["인문","자연"], tags: ["상위권"], site: "https://www.skku.edu", desc: "융합형·계열모집 확대. 반도체·소프트웨어 특성화." },
+  { name: "한양대학교", region: "서울", type: "사립", grade: 1.7, field: ["인문","자연"], tags: ["상위권","공학강세"], site: "https://www.hanyang.ac.kr", desc: "공학·자연계 강세. 학생부종합(추천형·서류형)." },
+  { name: "서강대학교", region: "서울", type: "사립", grade: 1.7, field: ["인문","자연"], tags: ["상위권"], site: "https://www.sogang.ac.kr", desc: "소수정예·전공자율선택 확대." },
+  { name: "중앙대학교", region: "서울", type: "사립", grade: 1.9, field: ["인문","자연"], tags: ["상위권"], site: "https://www.cau.ac.kr", desc: "다빈치형·탐구형 인재 학종 운영." },
+  { name: "경희대학교", region: "서울", type: "사립", grade: 1.9, field: ["인문","자연","의약"], tags: ["상위권"], site: "https://www.khu.ac.kr", desc: "네오르네상스전형 등 특색 학종. 한의대 보유." },
+  { name: "이화여자대학교", region: "서울", type: "사립", grade: 2.0, field: ["인문","자연","의약"], tags: ["여대","상위권"], site: "https://www.ewha.ac.kr", desc: "의대·약대 보유 종합 여자대학." },
+  { name: "카이스트(KAIST)", region: "대전", type: "특수", grade: 1.5, field: ["자연"], tags: ["이공계특성화"], site: "https://www.kaist.ac.kr", desc: "수시 위주 선발. 과학영재·일반전형. 등록금 지원." },
+  { name: "포스텍(POSTECH)", region: "포항", type: "특수", grade: 1.5, field: ["자연"], tags: ["이공계특성화"], site: "https://www.postech.ac.kr", desc: "단일계열 무학과 선발. 전원 수시 모집." },
+  { name: "부산대학교", region: "부산", type: "국립", grade: 2.2, field: ["인문","자연","의약"], tags: ["거점국립"], site: "https://www.pusan.ac.kr", desc: "지역거점국립대. 의대·치대 보유, 지역인재전형." },
+  { name: "경북대학교", region: "대구", type: "국립", grade: 2.3, field: ["인문","자연","의약"], tags: ["거점국립"], site: "https://www.knu.ac.kr", desc: "의대·치대·수의대 보유. 지역인재 선발 규모 큼." },
+  { name: "전남대학교", region: "광주", type: "국립", grade: 2.4, field: ["인문","자연","의약"], tags: ["거점국립"], site: "https://www.jnu.ac.kr", desc: "의대·치대·수의대 보유 호남권 거점국립대." },
+  { name: "충남대학교", region: "대전", type: "국립", grade: 2.4, field: ["인문","자연","의약"], tags: ["거점국립"], site: "https://www.cnu.ac.kr", desc: "의대·약대·수의대 보유. 지역인재전형 활발." },
+  { name: "전북대학교", region: "전주", type: "국립", grade: 2.5, field: ["인문","자연","의약"], tags: ["거점국립"], site: "https://www.jbnu.ac.kr", desc: "의대·치대·수의대 보유 거점국립대." },
+  { name: "강원대학교", region: "춘천", type: "국립", grade: 2.8, field: ["인문","자연","의약"], tags: ["거점국립"], site: "https://www.kangwon.ac.kr", desc: "의대·수의대 보유. 강원권 지역인재." },
+  { name: "제주대학교", region: "제주", type: "국립", grade: 3.0, field: ["인문","자연","의약"], tags: ["거점국립"], site: "https://www.jejunu.ac.kr", desc: "의대·수의대 보유. 제주권 지역인재." },
 ];
 
 /* ---------------- 의치한약수 (의학·치의학·한의학·약학·수의학) ---------------- */
@@ -112,3 +116,10 @@ window.REGIONAL = {
     { name: "제주권",          unis: ["제주대"] },
   ]
 };
+
+/* ---------------- 커뮤니티 초기 예시 글 ---------------- */
+window.SEED_POSTS = [
+  { nick: "예비고3", cat: "질문", title: "학종 자소서 폐지됐는데 뭘 준비해야 하나요?", body: "생기부 관리에 집중하는 게 맞을까요? 조언 부탁드려요!", time: "2026-07-01" },
+  { nick: "의대지망생", cat: "정보", title: "지역인재전형 정리 공유합니다", body: "본인 출신 고교 권역 꼭 확인하세요. 수도권 학교는 지역인재 지원 불가!", time: "2026-07-03" },
+  { nick: "합격수기", cat: "후기", title: "정시로 약대 합격했습니다 (6년제)", body: "미적분+과탐 조합으로 준비했고, 수능 최저 신경 많이 썼어요. 화이팅!", time: "2026-07-05" },
+];
