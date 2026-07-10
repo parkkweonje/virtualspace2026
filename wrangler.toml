@@ -1,0 +1,7 @@
+# Cloudflare Workers 정적 사이트 배포 설정
+# main 브랜치에 push되면 Cloudflare가 이 설정으로 자동 배포합니다.
+name = "virtualspace2026"
+compatibility_date = "2024-09-01"
+
+[assets]
+directory = "."
