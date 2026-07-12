@@ -100,18 +100,30 @@
       var list = window.GRADE || [];
       var active = 0;
 
+      var chipEls = [];
       list.forEach(function (g, i) {
         var b = document.createElement("button");
-        b.className = "chip" + (i === 0 ? " active" : "");
+        b.className = "chip";
         b.innerHTML = g.icon + " " + g.name;
-        b.addEventListener("click", function () {
-          active = i;
-          tabs.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("active"); });
-          b.classList.add("active");
-          render();
-        });
+        b.addEventListener("click", function () { select(i); });
         tabs.appendChild(b);
+        chipEls.push(b);
       });
+
+      function select(i, scroll) {
+        active = i;
+        chipEls.forEach(function (c, j) { c.classList.toggle("active", j === i); });
+        render();
+        if (scroll && detail.scrollIntoView) detail.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function fromHash() {
+        var k = (location.hash || "").replace("#", "");
+        var idx = 0;
+        list.forEach(function (g, i) { if (g.key === k) idx = i; });
+        return idx;
+      }
+      window.addEventListener("hashchange", function () { select(fromHash(), true); });
 
       function li(arr) { return arr.map(function (x) { return "<li>" + x + "</li>"; }).join(""); }
 
@@ -143,7 +155,7 @@
           "</div>";
       }
 
-      render();
+      select(fromHash());
     })();
   </script>
 </body>
