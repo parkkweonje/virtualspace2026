@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="ko" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "HF Gaegu";
+        src: url("assets/fonts/gaegu-bold.woff2") format("woff2");
+        font-weight: 700;
+      }
+      @font-face {
+        font-family: "HF Batang";
+        src: url("assets/fonts/gowunbatang-bold.woff2") format("woff2");
+        font-weight: 700;
+      }
+      :root {
+        --paper: #eee9dd;
+        --ink: #2b2433;
+        --cream: #f7f0e1;
+        --gold: #f2b84b;
+        --crimson: #9e2f2e;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--paper);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--paper);
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .fade,
+      .bg,
+      .world,
+      .shake,
+      .flood {
+        position: absolute;
+        inset: 0;
+      }
+      .world {
+        transform-origin: 50% 50%;
+      }
+      .world svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+      .flood {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .ink {
+        fill: none;
+        stroke: var(--ink);
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .rough {
+        filter: url(#rough);
+      }
+      .crayon {
+        filter: url(#crayon);
+      }
+      .nofx .rough,
+      .nofx .crayon {
+        filter: none;
+      }
+      .halo {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      .cap {
+        position: absolute;
+        left: 130px;
+        bottom: 104px;
+        max-width: 1320px;
+        color: var(--cream);
+      }
+      .cap.top {
+        bottom: auto;
+        top: 110px;
+      }
+      .cap .day {
+        display: block;
+        font-family: "HF Gaegu", sans-serif;
+        font-weight: 700;
+        font-size: 76px;
+        line-height: 1;
+        color: var(--gold);
+      }
+      .cap .verse {
+        display: block;
+        margin-top: 18px;
+        font-family: "HF Batang", serif;
+        font-weight: 700;
+        font-size: 50px;
+        line-height: 1.35;
+      }
+      .cap .ref {
+        display: block;
+        margin-top: 14px;
+        font-family: "HF Batang", serif;
+        font-weight: 700;
+        font-size: 32px;
+        color: #d9cfbd;
+      }
+      .cap.big .verse {
+        font-size: 96px;
+        line-height: 1.1;
+      }
+      .cap.light {
+        color: var(--ink);
+      }
+      .cap.light .day {
+        color: var(--crimson);
+      }
+      .cap.light .ref {
+        color: #4a3f52;
+      }
+      .title {
+        position: absolute;
+        left: 140px;
+        top: 130px;
+        color: var(--ink);
+      }
+      .title .main {
+        display: block;
+        font-family: "HF Gaegu", sans-serif;
+        font-weight: 700;
+        font-size: 128px;
+        line-height: 1;
+      }
+      .title .sub {
+        display: block;
+        margin-top: 22px;
+        font-family: "HF Batang", serif;
+        font-weight: 700;
+        font-size: 42px;
+        color: #5a4a3e;
+      }
+      .title .sub b {
+        color: var(--crimson);
+        font-weight: 700;
+      }
+      .grain {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        mix-blend-mode: soft-light;
+        opacity: 0.55;
+      }
+      .vignette {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0) 55%, rgba(20, 12, 30, 0.26) 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="40" data-width="1920" data-height="1080">
+      <svg width="0" height="0" style="position: absolute">
+        <defs>
+          <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence id="rough-turb" type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="1" result="warp" />
+            <feDisplacementMap in="SourceGraphic" in2="warp" scale="5" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+          <filter id="crayon" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence id="crayon-turb" type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="1" result="warp" />
+            <feDisplacementMap in="SourceGraphic" in2="warp" scale="5" xChannelSelector="R" yChannelSelector="G" result="wob" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="7" result="grain" />
+            <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.4 0 0 0 -0.32" result="speck" />
+            <feComposite in="wob" in2="speck" operator="in" />
+          </filter>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="10" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="16" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+      </svg>
+
+      <!-- ===== S0 · 종이 위의 돌 하나 ===== -->
+      <section id="s0" class="clip scene" data-start="0" data-duration="5.6" data-track-index="1">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 50% 60%, #f4efe4 0%, #eee9dd 60%, #e4dccb 100%)"></div>
+          <div class="world" id="s0-world">
+            <svg viewBox="0 0 1920 1080">
+              <g class="rough">
+                <path id="s0-ground" class="ink" pathLength="1" style="stroke-width: 4; opacity: 0.6" d="M 80 782 C 500 774, 900 790, 1300 780 S 1760 786, 1840 781" />
+                <g id="s0-burst" style="opacity: 0"></g>
+              </g>
+              <g transform="translate(960 712)"><g id="s0-stone"></g></g>
+            </svg>
+          </div>
+          <div class="title" id="s0-title">
+            <span class="main">다윗과 골리앗</span>
+            <span class="sub">사무엘상 17장 · 작은 소년의 <b>큰 믿음</b></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S1 · 골리앗 ===== -->
+      <section id="s1" class="clip scene" data-start="5.3" data-duration="5.3" data-track-index="2">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 60% 30%, #fff1cf 0%, #f6cf92 35%, #e19a62 75%, #b8693f 100%)"></div>
+          <div class="world" id="s1-world">
+            <div class="shake" id="s1-shake">
+              <svg viewBox="0 0 1920 1080">
+                <g class="crayon">
+                  <path fill="#d7a066" stroke="#2b2433" stroke-width="4" d="M -20 640 C 200 560, 460 580, 640 660 C 760 720, 1100 720, 1300 650 C 1500 580, 1760 560, 1940 600 L 1940 1100 L -20 1100 Z" />
+                  <path fill="#c98d55" stroke="#2b2433" stroke-width="4" d="M -20 860 C 500 830, 1300 850, 1940 830 L 1940 1100 L -20 1100 Z" />
+                </g>
+                <g id="s1-camps"></g>
+                <path class="ink rough" style="stroke: #8fc6d6; stroke-width: 6; opacity: 0.8" d="M -20 790 C 300 776, 700 800, 1000 786 S 1600 776, 1940 792" />
+                <g id="s1-soldiers"></g>
+                <g transform="translate(1500 1000) scale(0.95)"><g id="s1-goliath"></g></g>
+              </svg>
+            </div>
+          </div>
+          <div class="cap light top" id="s1-cap">
+            <span class="day">골리앗</span>
+            <span class="verse">그의 키는 여섯 규빗 한 뼘이요</span>
+            <span class="ref">사무엘상 17:4</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S2 · 두려움 ===== -->
+      <section id="s2" class="clip scene" data-start="10.4" data-duration="5.0" data-track-index="1">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 50% 20%, #2a3570 0%, #151b3c 50%, #0a0d22 100%)"></div>
+          <div class="world" id="s2-world">
+            <div class="halo" id="s2-fire-glow" style="left: 660px; top: 560px; width: 520px; height: 520px; background: radial-gradient(circle, rgba(255, 170, 90, 0.5) 0%, rgba(255, 170, 90, 0.12) 45%, rgba(255, 170, 90, 0) 70%)"></div>
+            <div class="halo" id="s2-david-glow" style="left: 1390px; top: 520px; width: 560px; height: 560px; opacity: 0; background: radial-gradient(circle, rgba(255, 244, 205, 0.85) 0%, rgba(255, 230, 160, 0.3) 40%, rgba(255, 230, 160, 0) 70%)"></div>
+            <svg viewBox="0 0 1920 1080">
+              <g id="s2-stars"></g>
+              <g transform="translate(1520 860) scale(1.15)" opacity="0.75"><g id="s2-shadow"></g></g>
+              <g class="crayon">
+                <path fill="#141833" stroke="#2b2433" stroke-width="4" d="M -20 820 C 500 780, 1300 800, 1940 780 L 1940 1100 L -20 1100 Z" />
+              </g>
+              <g transform="translate(920 840)"><g id="s2-fire"></g></g>
+              <g id="s2-soldiers"></g>
+              <g transform="translate(2060 900) scale(-0.62 0.62)"><g id="s2-david"></g></g>
+            </svg>
+          </div>
+          <div class="cap top" id="s2-cap">
+            <span class="day">두려움</span>
+            <span class="verse">놀라 크게 두려워하니라</span>
+            <span class="ref">사무엘상 17:11</span>
+          </div>
+          <div class="flood" id="s2-flood" style="background: radial-gradient(circle at 80% 70%, #fffaf0 0%, #ffe9c0 60%, #f7cf9a 100%)"></div>
+        </div>
+      </section>
+
+      <!-- ===== S3 · 시냇가 ===== -->
+      <section id="s3" class="clip scene" data-start="15.2" data-duration="5.4" data-track-index="2">
+        <div class="fade" id="s3-fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 70% 20%, #fff6df 0%, #f9d9a6 35%, #c9cfd6 80%, #9fb0c4 100%)"></div>
+          <div class="world" id="s3-world">
+            <svg viewBox="0 0 1920 1080">
+              <g class="crayon">
+                <path fill="#9fb07a" stroke="#2b2433" stroke-width="4" d="M -20 700 C 500 670, 1300 690, 1940 670 L 1940 1100 L -20 1100 Z" />
+                <path fill="#7fc0cf" stroke="#2b2433" stroke-width="5" d="M -20 860 C 500 830, 1300 850, 1940 826 L 1940 1000 C 1300 1020, 500 1000, -20 1030 Z" />
+              </g>
+              <g id="s3-waves" class="ink" style="stroke: #e8fbff; stroke-width: 4; opacity: 0.8"></g>
+              <g id="s3-stones"></g>
+              <g transform="translate(700 860) scale(0.85)"><g id="s3-david"></g></g>
+            </svg>
+          </div>
+          <div class="cap light top" id="s3-cap">
+            <span class="day">시냇가</span>
+            <span class="verse">시내에서 매끄러운 돌 다섯을 골라서</span>
+            <span class="ref">사무엘상 17:40</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S4 · 대치 ===== -->
+      <section id="s4" class="clip scene" data-start="20.4" data-duration="5.4" data-track-index="1">
+        <div class="fade" id="s4-fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 50% 30%, #fff0cc 0%, #f4c98c 35%, #df9660 75%, #b4663e 100%)"></div>
+          <div class="world" id="s4-world">
+            <svg viewBox="0 0 1920 1080">
+              <g class="crayon">
+                <path fill="#cf955c" stroke="#2b2433" stroke-width="4" d="M -20 900 C 500 880, 1300 900, 1940 884 L 1940 1100 L -20 1100 Z" />
+              </g>
+              <g transform="translate(430 910) scale(0.72)"><g id="s4-david"></g></g>
+              <g transform="translate(1450 910) scale(0.98)"><g id="s4-goliath"></g></g>
+            </svg>
+          </div>
+          <div class="cap light top" id="s4-cap" style="left: 330px">
+            <span class="day">대치</span>
+            <span class="verse">너는 칼과 창과 단창으로 내게 나아오거니와</span>
+            <span class="ref">사무엘상 17:45</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S5 · 물매 ===== -->
+      <section id="s5" class="clip scene" data-start="25.6" data-duration="5.2" data-track-index="2">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 40% 55%, #ffeeb8 0%, #f2ad6a 45%, #a85a38 100%)"></div>
+          <div class="world" id="s5-world">
+            <svg viewBox="0 0 1920 1080">
+              <g transform="translate(700 600)"><g id="s5-speed" style="opacity: 0.4"></g></g>
+              <g transform="translate(1800 430)"><g id="s5-helmet"></g></g>
+              <g transform="translate(700 600)"><g id="s5-trails"></g></g>
+              <g transform="translate(700 600)"><g id="s5-orbit"></g></g>
+              <path id="s5-streak" d="M 956 557 L 1720 432" stroke="#fff6dc" stroke-width="18" stroke-linecap="round" pathLength="1" opacity="0" filter="url(#glow)" />
+              <g transform="translate(956 557)"><g id="s5-fly"><g id="s5-fly-in"></g></g></g>
+              <g id="s5-cracks" class="ink" style="stroke-width: 5; opacity: 0">
+                <path d="M 1720 430 l -40 -50 l -30 -10 M 1720 430 l -60 30 l -20 40 M 1720 430 l 20 -70 M 1720 430 l 50 60" />
+              </g>
+              <g transform="translate(700 600)"><g id="s5-hand"></g></g>
+            </svg>
+          </div>
+          <div class="cap light top" id="s5-cap">
+            <span class="day">물매</span>
+            <span class="verse">물매로 던져 블레셋 사람의 이마를 치매</span>
+            <span class="ref">사무엘상 17:49</span>
+          </div>
+          <div class="flood" id="s5-flash" style="background: #fffaf0"></div>
+        </div>
+      </section>
+
+      <!-- ===== S6 · 쓰러짐과 승리 ===== -->
+      <section id="s6" class="clip scene" data-start="30.6" data-duration="5.2" data-track-index="1">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 30% 30%, #fff6da 0%, #f8d79c 35%, #e4a46c 75%, #bd7448 100%)"></div>
+          <div class="world" id="s6-world">
+            <div class="shake" id="s6-shake">
+              <svg viewBox="0 0 1920 1080">
+                <g transform="translate(300 260)"><g id="s6-rays" style="opacity: 0.5"></g></g>
+                <g class="crayon">
+                  <path fill="#d79d62" stroke="#2b2433" stroke-width="4" d="M -20 560 C 160 470, 420 480, 640 580 C 700 610, 720 640, 700 700 L -20 700 Z" />
+                  <path fill="#cf955c" stroke="#2b2433" stroke-width="4" d="M -20 900 C 500 880, 1300 900, 1940 884 L 1940 1100 L -20 1100 Z" />
+                </g>
+                <g id="s6-crowd"></g>
+                <g transform="translate(1420 910) scale(0.98)"><g id="s6-goliath"></g></g>
+                <g id="s6-dust"></g>
+                <g transform="translate(560 985)"><g id="s6-stone"></g></g>
+                <g transform="translate(240 910) scale(0.72)"><g id="s6-david"></g></g>
+              </svg>
+            </div>
+          </div>
+          <div class="cap light top big" id="s6-cap" style="left: 600px">
+            <span class="day">승리</span>
+            <span class="verse">전쟁은 여호와께 속한 것인즉</span>
+            <span class="ref">사무엘상 17:47</span>
+          </div>
+          <div class="flood" id="s6-flood" style="background: radial-gradient(circle at 50% 50%, #fffaf0 0%, #ffe39a 60%, #f2b84b 100%)"></div>
+        </div>
+      </section>
+
+      <!-- ===== S7 · 금빛 돌 ===== -->
+      <section id="s7" class="clip scene" data-start="35.6" data-duration="4.4" data-track-index="2">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 50% 60%, #f4efe4 0%, #eee9dd 60%, #e4dccb 100%)"></div>
+          <div class="world" id="s7-world">
+            <div class="halo" id="s7-glow" style="left: 660px; top: 412px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255, 220, 130, 0.65) 0%, rgba(255, 220, 130, 0.18) 45%, rgba(255, 220, 130, 0) 70%)"></div>
+            <svg viewBox="0 0 1920 1080">
+              <g class="rough">
+                <path class="ink" style="stroke-width: 4; opacity: 0.6" d="M 80 782 C 500 774, 900 790, 1300 780 S 1760 786, 1840 781" />
+              </g>
+              <g transform="translate(960 712)"><g id="s7-stone"></g></g>
+              <g id="s7-sparks"></g>
+            </svg>
+          </div>
+          <div class="title" id="s7-title">
+            <span class="main" style="font-family: 'HF Batang', serif; font-size: 84px">작은 돌 하나, 큰 믿음</span>
+            <span class="sub" style="font-family: 'HF Gaegu', sans-serif; font-size: 48px; color: #9e2f2e">사무엘상 17장 · 다윗과 골리앗</span>
+          </div>
+        </div>
+      </section>
+
+      <audio id="bgm" src="assets/audio/score.m4a" data-start="0" data-duration="40" data-track-index="3" data-volume="1"></audio>
+
+      <div class="vignette"></div>
+      <svg class="grain" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+        <filter id="grainf"><feTurbulence id="grain-turb" type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="3" /><feColorMatrix type="saturate" values="0" /></filter>
+        <rect width="1920" height="1080" filter="url(#grainf)" />
+      </svg>
+    </div>
+
+    <script>
+      (function () {
+        const NS = "http://www.w3.org/2000/svg";
+        const INK = "#2b2433";
+        const $ = (s) => document.querySelector(s);
+        function rng(seed) {
+          let a = seed >>> 0;
+          return function () {
+            a = (a + 0x6d2b79f5) >>> 0;
+            let t = a;
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          };
+        }
+        function el(tag, attrs, parent) {
+          const n = document.createElementNS(NS, tag);
+          for (const k in attrs) n.setAttribute(k, attrs[k]);
+          if (parent) parent.appendChild(n);
+          return n;
+        }
+
+        // ---------- a smooth stone (origin = centre) ----------
+        function buildStone(root, s, fill, hi) {
+          const g = el("g", { transform: `scale(${s})` }, root);
+          const d = "M -118 10 C -122 -46, -60 -78, 6 -76 C 74 -74, 124 -40, 120 8 C 116 56, 60 76, -4 74 C -70 72, -114 52, -118 10 Z";
+          el("path", { d, fill, stroke: "none" }, g);
+          el("path", { d, fill, stroke: INK, "stroke-width": 6, class: "crayon" }, g);
+          el("path", { d: "M -70 -30 C -40 -54, 10 -60, 50 -48", fill: "none", stroke: hi, "stroke-width": 10, "stroke-linecap": "round", opacity: 0.8 }, g);
+          el("ellipse", { cx: 40, cy: -40, rx: 14, ry: 8, fill: "#ffffff", opacity: 0.85 }, g);
+          return g;
+        }
+
+        // ---------- Goliath (faces -x, origin = feet) ----------
+        function buildGoliath(root, flat) {
+          const B = flat || "#b07a3c", D = flat || "#7a5228", C = flat || "#6b3b3b", S = flat || "#b98863";
+          const stroke = flat ? "none" : INK;
+          const g = el("g", {}, root);
+          const spearArm = el("g", {}, g);
+          el("path", { d: "M 150 -560 C 180 -520, 196 -470, 196 -420", fill: "none", stroke: S, "stroke-width": 40, "stroke-linecap": "round" }, spearArm);
+          el("rect", { x: 186, y: -930, width: 16, height: 860, fill: flat || "#6b4a2a", stroke, "stroke-width": 3 }, spearArm);
+          el("path", { d: "M 194 -1010 L 220 -930 L 168 -930 Z", fill: flat || "#c9c4b8", stroke, "stroke-width": 4 }, spearArm);
+          el("circle", { cx: 196, cy: -420, r: 26, fill: S, stroke, "stroke-width": 4 }, spearArm);
+          const body = el("g", {}, g);
+          [[-75, 0], [25, 0]].forEach(([x]) => {
+            el("rect", { x, y: -270, width: 50, height: 260, rx: 12, fill: B, stroke, "stroke-width": 5 }, body);
+            el("ellipse", { cx: x + 18, cy: -8, rx: 46, ry: 16, fill: D, stroke, "stroke-width": 4 }, body);
+          });
+          el("path", { d: "M -115 -260 L 115 -260 L 132 -340 L -132 -340 Z", fill: C, stroke, "stroke-width": 5 }, body);
+          if (!flat) for (let i = -4; i <= 4; i++) el("path", { d: `M ${i * 26} -262 L ${i * 29} -338`, stroke: "#4a2626", "stroke-width": 4 }, body);
+          el("path", { d: "M -132 -340 L 132 -340 L 152 -566 C 120 -610, -120 -610, -152 -566 Z", fill: B, stroke, "stroke-width": 6, class: flat ? "" : "crayon" }, body);
+          if (!flat) for (let r = 0; r < 6; r++) for (let c = -5; c <= 5; c++) {
+            const x = c * 24 + (r % 2) * 12, y = -380 - r * 34;
+            if (Math.abs(x) < 120 + r * 4) el("path", { d: `M ${x - 11} ${y} A 11 11 0 0 0 ${x + 11} ${y}`, fill: "none", stroke: D, "stroke-width": 3 }, body);
+          }
+          el("ellipse", { cx: -150, cy: -566, rx: 54, ry: 32, fill: D, stroke, "stroke-width": 5 }, body);
+          el("ellipse", { cx: 150, cy: -566, rx: 54, ry: 32, fill: D, stroke, "stroke-width": 5 }, body);
+          el("rect", { x: -34, y: -610, width: 68, height: 40, fill: S, stroke, "stroke-width": 4 }, body);
+          const head = el("g", {}, body);
+          el("path", { d: "M -74 -600 C -78 -712, 78 -712, 74 -600 L 74 -566 L -74 -566 Z", fill: B, stroke, "stroke-width": 6 }, head);
+          el("path", { d: "M -10 -712 C -60 -770, -150 -760, -170 -700 C -120 -730, -60 -730, -10 -700 Z", fill: flat || "#b0353a", stroke, "stroke-width": 4 }, head);
+          el("rect", { x: -60, y: -632, width: 104, height: 18, rx: 4, fill: flat || "#1a1414" }, head);
+          el("path", { d: "M -8 -614 L -8 -572", stroke: flat || D, "stroke-width": 8 }, head);
+          const shield = el("g", {}, body);
+          el("circle", { cx: -168, cy: -430, r: 118, fill: B, stroke, "stroke-width": 7, class: flat ? "" : "crayon" }, shield);
+          el("circle", { cx: -168, cy: -430, r: 86, fill: "none", stroke: D, "stroke-width": 6 }, shield);
+          el("circle", { cx: -168, cy: -430, r: 26, fill: D, stroke, "stroke-width": 5 }, shield);
+          return { g, body, spearArm, head };
+        }
+
+        // ---------- David (faces +x, origin = feet) ----------
+        function buildDavid(root, withStaff) {
+          const g = el("g", {}, root);
+          const legs = [];
+          [-30, 12].forEach((x) => legs.push(el("rect", { x, y: -66, width: 18, height: 64, rx: 8, fill: "#c08a62", stroke: INK, "stroke-width": 3 }, g)));
+          const body = el("g", {}, g);
+          const tunic = "M -42 -206 C -54 -150, -60 -96, -64 -60 L 64 -60 C 60 -96, 54 -150, 42 -206 Z";
+          el("path", { d: tunic, fill: "#c9a46a", stroke: "none" }, body);
+          el("path", { d: tunic, fill: "#c9a46a", stroke: INK, "stroke-width": 5, class: "crayon" }, body);
+          el("path", { d: "M -52 -120 L 54 -120", stroke: "#7a4e2a", "stroke-width": 7 }, body);
+          el("path", { d: "M -30 -200 L -46 -100", stroke: "#6b4a2a", "stroke-width": 4 }, body);
+          el("ellipse", { cx: -46, cy: -94, rx: 20, ry: 24, fill: "#8a5a3c", stroke: INK, "stroke-width": 3 }, body);
+          el("ellipse", { cx: 8, cy: -236, rx: 27, ry: 31, fill: "#d7a57e", stroke: INK, "stroke-width": 4 }, body);
+          [[-16, -262, 16], [6, -270, 16], [26, -260, 13], [-26, -244, 14], [-22, -226, 11]].forEach(([x, y, r]) => el("circle", { cx: x, cy: y, r, fill: "#6b3f22", stroke: INK, "stroke-width": 2.5 }, body));
+          const arm = el("g", {}, body);
+          el("path", { d: "M 26 -194 C 44 -170, 56 -150, 64 -128", fill: "none", stroke: "#c9a46a", "stroke-width": 18, "stroke-linecap": "round" }, arm);
+          el("circle", { cx: 66, cy: -124, r: 9, fill: "#d7a57e", stroke: INK, "stroke-width": 3 }, arm);
+          if (withStaff) el("path", { d: "M 70 -300 C 66 -200, 72 -100, 68 0", fill: "none", stroke: "#7a4e2a", "stroke-width": 8, "stroke-linecap": "round" }, arm);
+          return { g, body, arm, legs };
+        }
+
+        function buildSoldier(root, color, r) {
+          const o = el("g", {}, root);
+          const s = el("g", {}, o);
+          el("path", { d: "M 70 -300 L 70 0", stroke: "#6b4a2a", "stroke-width": 7 }, s);
+          el("path", { d: "M 70 -330 L 80 -300 L 60 -300 Z", fill: "#c9c4b8", stroke: INK, "stroke-width": 3 }, s);
+          el("path", { d: "M -40 -200 C -50 -140, -58 -70, -62 -6 L 62 -6 C 58 -70, 50 -140, 40 -200 Z", fill: color, stroke: INK, "stroke-width": 5 }, s);
+          el("ellipse", { cx: 0, cy: -230, rx: 27, ry: 30, fill: "#c99a78", stroke: INK, "stroke-width": 4 }, s);
+          el("path", { d: "M -30 -236 C -30 -272, 30 -272, 30 -236 Z", fill: "#8c8f99", stroke: INK, "stroke-width": 4 }, s);
+          el("ellipse", { cx: -50, cy: -120, rx: 36, ry: 50, fill: "#a87a4a", stroke: INK, "stroke-width": 4 }, s);
+          return s;
+        }
+
+        // ---------- scenes ----------
+        buildStone($("#s0-stone"), 1.0, "#8e9aae", "#c9d2df");
+        const STONE0 = { x: 960, y: 712 };
+        (function () {
+          const r = rng(11), g = $("#s0-burst");
+          for (let i = 0; i < 44; i++) {
+            const a = (i / 44) * Math.PI * 2 + r() * 0.08, r0 = 260 + r() * 120, r1 = r0 + 260 + r() * 420;
+            el("path", { d: `M ${STONE0.x + r0 * Math.cos(a)} ${STONE0.y + r0 * Math.sin(a)} L ${STONE0.x + r1 * Math.cos(a)} ${STONE0.y + r1 * Math.sin(a)}`, stroke: INK, "stroke-width": 1.5 + r() * 2.5, opacity: 0.35 + r() * 0.3, "stroke-linecap": "round" }, g);
+          }
+        })();
+
+        // S1
+        (function () {
+          const g = $("#s1-camps");
+          [[120, 600, "#3f6aa8"], [260, 580, "#3f6aa8"], [400, 600, "#3f6aa8"]].forEach(([x, y, c]) => {
+            el("path", { d: `M ${x - 50} ${y} L ${x} ${y - 70} L ${x + 50} ${y} Z`, fill: "#efe2c6", stroke: INK, "stroke-width": 4 }, g);
+            el("path", { d: `M ${x} ${y - 70} L ${x} ${y - 130} L ${x + 40} ${y - 118} L ${x} ${y - 106}`, fill: c, stroke: INK, "stroke-width": 3 }, g);
+          });
+          [[1560, 590, "#b0353a"], [1700, 570, "#b0353a"], [1840, 590, "#b0353a"]].forEach(([x, y, c]) => {
+            el("path", { d: `M ${x - 50} ${y} L ${x} ${y - 70} L ${x + 50} ${y} Z`, fill: "#e8cfa8", stroke: INK, "stroke-width": 4 }, g);
+            el("path", { d: `M ${x} ${y - 70} L ${x} ${y - 130} L ${x + 40} ${y - 118} L ${x} ${y - 106}`, fill: c, stroke: INK, "stroke-width": 3 }, g);
+          });
+        })();
+        const sold1 = [];
+        [[150, 960, 0.5], [270, 980, 0.48], [390, 955, 0.5], [510, 985, 0.46], [630, 960, 0.48]].forEach(([x, y, s], i) => {
+          const o = el("g", { transform: `translate(${x} ${y}) scale(${s})` }, $("#s1-soldiers"));
+          sold1.push(buildSoldier(o, "#4f6fa0"));
+        });
+        const gol1 = buildGoliath($("#s1-goliath"));
+        const VISOR = { x: 1500 - 8 * 0.95, y: 1000 - 623 * 0.95 };
+
+        // S2
+        (function () {
+          const r = rng(61), g = $("#s2-stars");
+          for (let i = 0; i < 70; i++) el("circle", { cx: r() * 1920, cy: r() * 600, r: 1.2 + r() * 2.4, fill: "#f7f0e1", opacity: 0.4 + r() * 0.5 }, g);
+          const f = $("#s2-fire");
+          el("path", { d: "M -50 0 L 50 0 M -40 6 L 40 -6", stroke: "#6b4a2a", "stroke-width": 10, "stroke-linecap": "round" }, f);
+          el("path", { id: "s2-flame", d: "M 0 -100 C 30 -60, 40 -24, 26 -4 C 12 8, -12 8, -26 -4 C -40 -24, -30 -60, 0 -100 Z", fill: "#f6a43c", stroke: INK, "stroke-width": 3 }, f);
+        })();
+        buildGoliath($("#s2-shadow"), "#3a1420");
+        const sold2 = [];
+        [[620, 880, 0.55], [760, 900, 0.5], [1080, 890, 0.52], [1220, 905, 0.5], [520, 910, 0.5]].forEach(([x, y, s], i) => {
+          const o = el("g", { transform: `translate(${x} ${y}) scale(${i % 2 ? -s : s} ${s})` }, $("#s2-soldiers"));
+          sold2.push(buildSoldier(o, "#4f6fa0"));
+        });
+        const dav2 = buildDavid($("#s2-david"), true);
+
+        // S3
+        (function () {
+          const g = $("#s3-waves"), r = rng(5);
+          for (let i = 0; i < 12; i++) {
+            const x = r() * 1900, y = 870 + r() * 110;
+            el("path", { d: `M ${x} ${y} q 25 -10 50 0 t 50 0` }, g);
+          }
+        })();
+        const stones3 = [];
+        [[960, 940], [1120, 960], [1280, 935], [1440, 965], [1600, 945]].forEach(([x, y], i) => {
+          const o = el("g", { transform: `translate(${x} ${y})` }, $("#s3-stones"));
+          const s = el("g", {}, o);
+          const inner = el("g", {}, s);
+          buildStone(inner, 0.26, "#9aa6b8", "#d2dae6");
+          stones3.push({ s, inner, x, y });
+        });
+        const dav3 = buildDavid($("#s3-david"), true);
+
+        // S4
+        const dav4 = buildDavid($("#s4-david"), false);
+        const gol4 = buildGoliath($("#s4-goliath"));
+
+        // S5
+        (function () {
+          const g = $("#s5-speed"), r = rng(17);
+          for (let i = 0; i < 40; i++) {
+            const a = (i / 40) * Math.PI * 2, r0 = 380 + r() * 200, r1 = r0 + 300 + r() * 500;
+            el("path", { d: `M ${r0 * Math.cos(a)} ${r0 * Math.sin(a)} L ${r1 * Math.cos(a)} ${r1 * Math.sin(a)}`, stroke: "#fff6dc", "stroke-width": 3 + r() * 4, "stroke-linecap": "round" }, g);
+          }
+          const tr = $("#s5-trails");
+          [0.9, 0.6, 0.35].forEach((o, i) => el("circle", { r: 260 - i * 2, fill: "none", stroke: "#fff6dc", "stroke-width": 14 - i * 4, opacity: o * 0.5, "stroke-dasharray": "300 1334" }, tr));
+          const orb = $("#s5-orbit");
+          el("path", { d: "M 0 0 C 80 -16, 180 -12, 250 0", fill: "none", stroke: "#7a4e2a", "stroke-width": 7 }, orb);
+          const so = el("g", { transform: "translate(260 0)" }, orb);
+          buildStone(so, 0.3, "#8e9aae", "#c9d2df");
+          buildStone($("#s5-fly-in"), 0.34, "#8e9aae", "#c9d2df");
+          const h = $("#s5-helmet");
+          el("path", { d: "M -260 120 C -270 -200, 260 -200, 260 120 L 260 220 L -260 220 Z", fill: "#b07a3c", stroke: INK, "stroke-width": 8, class: "crayon" }, h);
+          el("rect", { x: -200, y: 60, width: 360, height: 50, rx: 10, fill: "#1a1414" }, h);
+          el("path", { d: "M -40 -150 C -200 -330, -460 -300, -520 -120 C -380 -220, -200 -220, -40 -110 Z", fill: "#b0353a", stroke: INK, "stroke-width": 6 }, h);
+          const hand = $("#s5-hand");
+          el("path", { d: "M -260 260 C -180 200, -80 80, 0 0", fill: "none", stroke: "#c9a46a", "stroke-width": 60, "stroke-linecap": "round" }, hand);
+          el("circle", { r: 34, fill: "#d7a57e", stroke: INK, "stroke-width": 5 }, hand);
+        })();
+
+        // S6
+        const gol6 = buildGoliath($("#s6-goliath"));
+        const dav6 = buildDavid($("#s6-david"), false);
+        buildStone($("#s6-stone"), 0.22, "#8e9aae", "#ffe39a");
+        (function () {
+          const rays = $("#s6-rays");
+          for (let i = 0; i < 22; i++) {
+            const a = (i / 22) * Math.PI * 2, w = 0.06;
+            el("path", { d: `M 0 0 L ${1800 * Math.cos(a - w)} ${1800 * Math.sin(a - w)} L ${1800 * Math.cos(a + w)} ${1800 * Math.sin(a + w)} Z`, fill: "#fff8de", opacity: i % 2 ? 0.45 : 0.8 }, rays);
+          }
+        })();
+        const crowd = [];
+        [[80, 620, 0.32], [170, 600, 0.3], [260, 590, 0.32], [350, 600, 0.3], [440, 620, 0.32], [530, 650, 0.3]].forEach(([x, y, s]) => {
+          const o = el("g", { transform: `translate(${x} ${y}) scale(${s})` }, $("#s6-crowd"));
+          crowd.push(buildSoldier(o, "#4f6fa0"));
+        });
+        const dust = [];
+        (function () {
+          const r = rng(23), g = $("#s6-dust");
+          for (let i = 0; i < 16; i++) {
+            const x = 520 + r() * 900, c = el("circle", { cx: x, cy: 900 - r() * 40, r: 30 + r() * 50, fill: "#e9d2ab", stroke: INK, "stroke-width": 3, opacity: 0 }, g);
+            dust.push({ c, dx: (r() - 0.5) * 160, dy: -60 - r() * 120 });
+          }
+        })();
+
+        // S7
+        buildStone($("#s7-stone"), 1.0, "#f2b84b", "#fff1c4");
+        const sparks = [];
+        [[1220, 520, 1], [700, 540, 0.8], [1290, 660, 0.7], [650, 690, 0.6]].forEach(([x, y, s]) => {
+          const o = el("g", { transform: `translate(${x} ${y}) scale(${s})` }, $("#s7-sparks"));
+          const g = el("g", {}, o);
+          el("path", { d: "M 0 -30 C 4 -6, 6 -4, 30 0 C 6 4, 4 6, 0 30 C -4 6, -6 4, -30 0 C -6 -4, -4 -6, 0 -30 Z", fill: "#f2b84b", stroke: INK, "stroke-width": 3 }, g);
+          sparks.push(g);
+        });
+
+        // ---------- camera ----------
+        function camera(world) {
+          const st = { S: 1, c: 0, ox: 0, oy: 0 };
+          const apply = () => {
+            const tx = st.ox * (1 - st.c) - st.S * st.ox, ty = st.oy * (1 - st.c) - st.S * st.oy;
+            world.style.transform = `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${st.S.toFixed(4)})`;
+            world.classList.toggle("nofx", st.S > 2.2);
+          };
+          return {
+            set(ox, oy, S, c) { Object.assign(st, { ox, oy, S, c }); apply(); },
+            move(tl, { ox, oy, s0, s1, c0, c1, at, dur, ease }) {
+              const p = { v: 0 };
+              tl.fromTo(p, { v: 0 }, { v: 1, duration: dur, ease, onUpdate() {
+                st.ox = ox; st.oy = oy; st.S = s0 * Math.pow(s1 / s0, p.v); st.c = c0 + (c1 - c0) * p.v; apply();
+              } }, at);
+            },
+          };
+        }
+        const cam = {};
+        ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7"].forEach((k) => (cam[k] = camera($(`#${k}-world`))));
+        cam.s7.set(0, 712 - 540, 40, 1);
+
+        // ---------- timeline ----------
+        const tl = gsap.timeline({ paused: true });
+        tl.fromTo("#rough-turb", { attr: { seed: 1 } }, { attr: { seed: 321 }, duration: 40, ease: "steps(320)" }, 0);
+        tl.fromTo("#crayon-turb", { attr: { seed: 1 } }, { attr: { seed: 321 }, duration: 40, ease: "steps(320)" }, 0);
+        tl.fromTo("#grain-turb", { attr: { seed: 3 } }, { attr: { seed: 483 }, duration: 40, ease: "steps(480)" }, 0);
+
+        function capIn(id, at) {
+          tl.fromTo(`${id} .day`, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.6)" }, at);
+          tl.fromTo(`${id} .verse`, { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.0, ease: "power2.out" }, at + 0.25);
+          tl.fromTo(`${id} .ref`, { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.5, ease: "sine.out" }, at + 0.8);
+        }
+        function capOut(id, at) {
+          tl.to(id, { opacity: 0, filter: "blur(8px)", duration: 0.45, ease: "power2.in" }, at);
+        }
+        function fadeIn(id, at, dur) {
+          tl.fromTo(`${id} .fade`, { opacity: 0 }, { opacity: 1, duration: dur || 0.4, ease: "sine.inOut" }, at);
+        }
+        function shake(target, at, amp, n) {
+          tl.fromTo(target, { x: 0, y: 0 }, { x: amp, y: -amp * 0.6, duration: 0.05, ease: "none", yoyo: true, repeat: n * 2 - 1, immediateRender: false }, at);
+        }
+        function tremble(nodes, at, dur) {
+          nodes.forEach((s, i) => tl.fromTo(s, { rotation: -2.5, svgOrigin: "0 0" }, { rotation: 2.5, svgOrigin: "0 0", duration: 0.09, ease: "sine.inOut", yoyo: true, repeat: Math.max(0, Math.floor(dur / 0.09) - 1) }, at + i * 0.03));
+        }
+
+        // ===== S0 (0 – 5.6) =====
+        tl.fromTo("#s0-ground", { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.0, ease: "power2.out" }, 0.1);
+        tl.fromTo("#s0-stone", { y: -320 }, { y: 0, duration: 0.7, ease: "bounce.out" }, 0.4);
+        tl.fromTo("#s0-title .main", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "back.out(1.4)" }, 0.7);
+        tl.fromTo("#s0-title .sub", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.0, ease: "power2.out" }, 1.2);
+        tl.fromTo("#s0-burst", { opacity: 0, scale: 0.85, svgOrigin: `${STONE0.x} ${STONE0.y}` }, { opacity: 1, scale: 1, svgOrigin: `${STONE0.x} ${STONE0.y}`, duration: 0.5, ease: "power3.out" }, 3.4);
+        tl.to("#s0-burst", { rotation: 8, svgOrigin: `${STONE0.x} ${STONE0.y}`, duration: 2.2, ease: "none" }, 3.4);
+        tl.to("#s0-title", { opacity: 0, filter: "blur(10px)", duration: 0.5, ease: "power2.in" }, 4.2);
+        cam.s0.move(tl, { ox: 0, oy: STONE0.y - 540, s0: 1, s1: 40, c0: 0, c1: 1, at: 4.2, dur: 1.2, ease: "power2.in" });
+
+        // ===== S1 (5.3 – 10.6) =====
+        fadeIn("#s1", 5.35, 0.4);
+        tl.fromTo("#s1-world", { filter: "blur(10px)" }, { filter: "blur(0px)", duration: 0.6, ease: "power2.out" }, 5.35);
+        tl.fromTo("#s1-goliath", { x: 520 }, { x: 390, duration: 0.5, ease: "power2.inOut" }, 5.6);
+        for (let i = 1; i < 4; i++) tl.to("#s1-goliath", { x: 390 - 130 * i, duration: 0.5, ease: "power2.inOut" }, 5.6 + i * 0.8);
+        for (let i = 0; i < 4; i++) {
+          tl.fromTo(gol1.body, { y: 0 }, { y: -18, duration: 0.25, ease: "sine.out", yoyo: true, repeat: 1, immediateRender: false }, 5.6 + i * 0.8);
+          shake("#s1-shake", 6.1 + i * 0.8, 10, 2);
+        }
+        tremble(sold1, 6.1, 3.4);
+        capIn("#s1-cap", 7.0);
+        capOut("#s1-cap", 9.45);
+        cam.s1.move(tl, { ox: VISOR.x - 960, oy: VISOR.y - 540, s0: 1, s1: 130, c0: 0, c1: 1, at: 9.45, dur: 0.95, ease: "power2.in" });
+
+        // ===== S2 (10.4 – 15.4) =====
+        fadeIn("#s2", 10.45, 0.35);
+        cam.s2.move(tl, { ox: 0, oy: 0, s0: 1.12, s1: 1, c0: 0, c1: 0, at: 10.5, dur: 1.6, ease: "power2.out" });
+        tl.fromTo("#s2-shadow", { scale: 0.92, svgOrigin: "0 0" }, { scale: 1.05, svgOrigin: "0 0", duration: 2.4, ease: "sine.inOut", yoyo: true, repeat: 1 }, 10.4);
+        tl.fromTo("#s2-flame", { scaleY: 0.88, skewX: -5, svgOrigin: "0 0" }, { scaleY: 1.1, skewX: 5, svgOrigin: "0 0", duration: 0.2, ease: "sine.inOut", yoyo: true, repeat: 23 }, 10.4);
+        tl.fromTo("#s2-fire-glow", { scale: 0.92 }, { scale: 1.06, duration: 0.6, ease: "sine.inOut", yoyo: true, repeat: 7 }, 10.4);
+        tremble(sold2, 10.6, 4.4);
+        capIn("#s2-cap", 11.0);
+        tl.fromTo("#s2-david", { x: 0 }, { x: 640, duration: 1.6, ease: "power1.out" }, 13.0);
+        dav2.legs.forEach((l, i) => tl.fromTo(l, { rotation: i ? 12 : -12, svgOrigin: `${i ? 21 : -21} -66` }, { rotation: i ? -12 : 12, svgOrigin: `${i ? 21 : -21} -66`, duration: 0.2, ease: "sine.inOut", yoyo: true, repeat: 7 }, 13.0));
+        tl.fromTo("#s2-david-glow", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 1.2, ease: "power2.out" }, 13.2);
+        capOut("#s2-cap", 14.5);
+        tl.fromTo("#s2-flood", { opacity: 0 }, { opacity: 1, duration: 0.55, ease: "power2.in" }, 14.7);
+
+        // ===== S3 (15.2 – 20.6) =====
+        fadeIn("#s3", 15.25, 0.45);
+        tl.fromTo("#s3-waves", { x: -40 }, { x: 60, duration: 5.4, ease: "none" }, 15.2);
+        capIn("#s3-cap", 15.8);
+        tl.fromTo(dav3.body, { rotation: 0, svgOrigin: "0 -60" }, { rotation: 22, svgOrigin: "0 -60", duration: 0.5, ease: "power2.out" }, 16.0);
+        stones3.forEach((st, i) => {
+          const t0 = 16.5 + i * 0.5;
+          const dx = 700 + 30 - st.x, dy = 860 - 85 - st.y;
+          tl.fromTo(st.inner, { opacity: 0.6, scale: 1, svgOrigin: "0 0" }, { opacity: 1, scale: 1.3, svgOrigin: "0 0", duration: 0.15, ease: "power1.out" }, t0);
+          tl.fromTo(st.s, { x: 0 }, { x: dx, duration: 0.4, ease: "power1.in", immediateRender: false }, t0 + 0.15);
+          tl.fromTo(st.s, { y: 0 }, { y: dy - 120, duration: 0.2, ease: "power2.out", immediateRender: false }, t0 + 0.15);
+          tl.to(st.s, { y: dy, duration: 0.2, ease: "power2.in" }, t0 + 0.35);
+          tl.to(st.inner, { scale: 0, svgOrigin: "0 0", duration: 0.1 }, t0 + 0.55);
+        });
+        tl.to(dav3.body, { rotation: 0, svgOrigin: "0 -60", duration: 0.4, ease: "back.out(2)" }, 19.1);
+        capOut("#s3-cap", 19.7);
+        tl.to("#s3-fade", { x: -1920, duration: 0.6, ease: "power3.in" }, 19.95);
+
+        // ===== S4 (20.4 – 25.8) =====
+        tl.fromTo("#s4-fade", { x: 1920 }, { x: 0, duration: 0.6, ease: "power3.out" }, 20.2);
+        cam.s4.move(tl, { ox: 0, oy: 0, s0: 1, s1: 1.08, c0: 0, c1: 0, at: 20.4, dur: 4.4, ease: "sine.inOut" });
+        capIn("#s4-cap", 20.9);
+        tl.fromTo(gol4.spearArm, { rotation: 0, svgOrigin: "150 -560" }, { rotation: -28, svgOrigin: "150 -560", duration: 0.6, ease: "back.out(1.6)" }, 22.0);
+        tl.fromTo(gol4.body, { y: 0 }, { y: -10, duration: 0.6, ease: "sine.inOut", yoyo: true, repeat: 3 }, 21.0);
+        tl.fromTo(dav4.arm, { rotation: 0, svgOrigin: "26 -194" }, { rotation: -150, svgOrigin: "26 -194", duration: 0.5, ease: "power2.out" }, 23.6);
+        tl.fromTo("#s4-david", { x: 0 }, { x: 330, duration: 1.2, ease: "power2.in" }, 24.2);
+        dav4.legs.forEach((l, i) => tl.fromTo(l, { rotation: i ? 18 : -18, svgOrigin: `${i ? 21 : -21} -66` }, { rotation: i ? -18 : 18, svgOrigin: `${i ? 21 : -21} -66`, duration: 0.14, ease: "sine.inOut", yoyo: true, repeat: 7 }, 24.2));
+        capOut("#s4-cap", 24.8);
+        const HAND4 = { x: 430 + (330 + 26.4) * 0.72, y: 910 - 274.6 * 0.72 }; // hand after the -150° arm raise
+        cam.s4.move(tl, { ox: HAND4.x - 960, oy: HAND4.y - 540, s0: 1.08, s1: 14, c0: 0, c1: 1, at: 25.0, dur: 0.75, ease: "power2.in" });
+
+        // ===== S5 (25.6 – 30.8) =====
+        fadeIn("#s5", 25.65, 0.3);
+        tl.fromTo("#s5-speed", { rotation: 0, svgOrigin: "0 0" }, { rotation: 30, svgOrigin: "0 0", duration: 5.2, ease: "none" }, 25.6);
+        const ROT_END = 360 * 4 - 9.5;
+        tl.fromTo("#s5-orbit", { rotation: 0, svgOrigin: "0 0" }, { rotation: ROT_END, svgOrigin: "0 0", duration: 1.9, ease: "power2.in" }, 25.6);
+        tl.fromTo("#s5-trails", { rotation: 0, svgOrigin: "0 0" }, { rotation: ROT_END, svgOrigin: "0 0", duration: 1.9, ease: "power2.in" }, 25.6);
+        tl.fromTo("#s5-trails", { opacity: 0 }, { opacity: 1, duration: 1.2 }, 25.8);
+        capIn("#s5-cap", 25.9);
+        tl.set("#s5-orbit g", { opacity: 0 }, 27.5);
+        tl.fromTo("#s5-fly", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 27.5);
+        tl.fromTo("#s5-fly", { x: 0, y: 0 }, { x: 764, y: -125, duration: 0.45, ease: "power1.in", immediateRender: false }, 27.5);
+        tl.fromTo("#s5-fly-in", { rotation: 0, scale: 1, svgOrigin: "0 0" }, { rotation: 540, scale: 0.6, svgOrigin: "0 0", duration: 0.45, ease: "none" }, 27.5);
+        tl.fromTo("#s5-streak", { opacity: 0, strokeDasharray: 1, strokeDashoffset: 1 }, { opacity: 0.9, strokeDashoffset: 0, duration: 0.45, ease: "power1.in" }, 27.5);
+        tl.to("#s5-streak", { opacity: 0, duration: 0.5 }, 28.0);
+        tl.fromTo("#s5-flash", { opacity: 0 }, { opacity: 0.9, duration: 0.06 }, 27.95);
+        tl.to("#s5-flash", { opacity: 0, duration: 0.5, ease: "power2.out" }, 28.05);
+        tl.fromTo("#s5-cracks", { opacity: 0 }, { opacity: 1, duration: 0.1 }, 28.0);
+        tl.fromTo("#s5-helmet", { x: 0, rotation: 0, svgOrigin: "0 0" }, { x: 60, rotation: 8, svgOrigin: "0 0", duration: 0.25, ease: "power3.out" }, 27.97);
+        tl.set("#s5-fly", { opacity: 0 }, 28.0);
+        capOut("#s5-cap", 30.0);
+        tl.fromTo("#s5-flash", { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "power2.in", immediateRender: false }, 30.25);
+
+        // ===== S6 (30.6 – 35.8) =====
+        fadeIn("#s6", 30.65, 0.35);
+        tl.fromTo("#s6-goliath", { rotation: 0, svgOrigin: "-40 0" }, { rotation: -84, svgOrigin: "-40 0", duration: 0.95, ease: "power2.in" }, 30.95);
+        tl.to("#s6-goliath", { rotation: -80, svgOrigin: "-40 0", duration: 0.15, ease: "power1.out", yoyo: true, repeat: 1 }, 31.9);
+        shake("#s6-shake", 31.9, 16, 4);
+        dust.forEach((d) => tl.fromTo(d.c, { opacity: 0, x: 0, y: 0, scale: 0.4, transformOrigin: "50% 50%" }, { opacity: 0.85, x: d.dx, y: d.dy, scale: 1.2, transformOrigin: "50% 50%", duration: 1.2, ease: "power2.out" }, 31.9));
+        dust.forEach((d) => tl.to(d.c, { opacity: 0, duration: 0.9 }, 33.0));
+        tl.fromTo("#s6-rays", { rotation: 0, scale: 0.6, svgOrigin: "0 0" }, { rotation: 18, scale: 1, svgOrigin: "0 0", duration: 4.0, ease: "power1.out" }, 32.0);
+        crowd.forEach((c, i) => tl.fromTo(c, { y: 0 }, { y: -60, duration: 0.22, ease: "power2.out", yoyo: true, repeat: 7 }, 32.3 + i * 0.07));
+        tl.fromTo(dav6.arm, { rotation: 0, svgOrigin: "26 -194" }, { rotation: -150, svgOrigin: "26 -194", duration: 0.4, ease: "back.out(2)" }, 32.4);
+        capIn("#s6-cap", 32.4);
+        tl.fromTo("#s6-stone", { scale: 1, svgOrigin: "0 0" }, { scale: 1.25, svgOrigin: "0 0", duration: 0.4, ease: "sine.inOut", yoyo: true, repeat: 3 }, 33.2);
+        capOut("#s6-cap", 34.8);
+        cam.s6.move(tl, { ox: 560 - 960, oy: 985 - 540, s0: 1, s1: 60, c0: 0, c1: 1, at: 34.9, dur: 0.85, ease: "power2.in" });
+        tl.fromTo("#s6-flood", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.in" }, 35.45);
+
+        // ===== S7 (35.6 – 40) =====
+        fadeIn("#s7", 35.65, 0.3);
+        cam.s7.move(tl, { ox: 0, oy: 712 - 540, s0: 40, s1: 1, c0: 1, c1: 0, at: 35.6, dur: 1.6, ease: "power3.out" });
+        tl.fromTo("#s7-glow", { scale: 0.85 }, { scale: 1.1, duration: 0.8, ease: "sine.inOut", yoyo: true, repeat: 3 }, 36.4);
+        sparks.forEach((s, i) => {
+          tl.fromTo(s, { scale: 0, rotation: -30, svgOrigin: "0 0" }, { scale: 1, rotation: 0, svgOrigin: "0 0", duration: 0.4, ease: "back.out(2.6)" }, 37.2 + i * 0.1);
+          tl.to(s, { rotation: 25, svgOrigin: "0 0", duration: 2.0, ease: "sine.inOut" }, 37.6 + i * 0.1);
+        });
+        tl.fromTo("#s7-title .main", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "back.out(1.4)" }, 37.0);
+        tl.fromTo("#s7-title .sub", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.5, ease: "sine.out" }, 37.6);
+
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>
