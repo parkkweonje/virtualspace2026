@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "historyId": "27878074-3239-492e-84ab-aae1369c924b",
+  "currentRevision": null,
+  "pendingChanges": false,
+  "files": {
+    "AGENTS.md": {
+      "hash": "1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5",
+      "content": "/root/.cache/hyperframes/history/27878074-3239-492e-84ab-aae1369c924b/blobs/1d/1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5"
+    },
+    "CLAUDE.md": {
+      "hash": "1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5",
+      "content": "/root/.cache/hyperframes/history/27878074-3239-492e-84ab-aae1369c924b/blobs/1d/1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5"
+    },
+    "hyperframes.json": {
+      "hash": "53dbce1e19aa713cbb12ee0bc4d206143b45ab15e6ffbfcaa8f69572d4d24d50",
+      "content": "/root/.cache/hyperframes/history/27878074-3239-492e-84ab-aae1369c924b/blobs/53/53dbce1e19aa713cbb12ee0bc4d206143b45ab15e6ffbfcaa8f69572d4d24d50"
+    },
+    "index.html": {
+      "hash": "7b0ece0e1a9c8c6b4a0877893d97e7cef07faea659edbf0c27d0f6fbde73d171",
+      "content": "/root/.cache/hyperframes/history/27878074-3239-492e-84ab-aae1369c924b/blobs/7b/7b0ece0e1a9c8c6b4a0877893d97e7cef07faea659edbf0c27d0f6fbde73d171"
+    },
+    "meta.json": {
+      "hash": "c4dc05bebcfaf51aa11709e6a9959e051f8031b0921602b2fedc5a890bdd87f3",
+      "content": "/root/.cache/hyperframes/history/27878074-3239-492e-84ab-aae1369c924b/blobs/c4/c4dc05bebcfaf51aa11709e6a9959e051f8031b0921602b2fedc5a890bdd87f3"
+    },
+    "package-lock.json": {
+      "hash": "04877bae7537df3e646db7398a4864f02f652ceeba9d8f20a2bd702f094b88b7",
+      "content": "/root/.cache/hyperframes/history/27878074-3239-492e-84ab-aae1369c924b/blobs/04/04877bae7537df3e646db7398a4864f02f652ceeba9d8f20a2bd702f094b88b7"
+    },
+    "package.json": {
+      "hash": "1e9ce5eac9773636ed81e867f53344adb9e56859fd55c69213e698f3cea5bcdd",
+      "content": "/root/.cache/hyperframes/history/27878074-3239-492e-84ab-aae1369c924b/blobs/1e/1e9ce5eac9773636ed81e867f53344adb9e56859fd55c69213e698f3cea5bcdd"
+    }
+  },
+  "revisions": {},
+  "checks": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  },
+  "snapshots": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  }
+}
