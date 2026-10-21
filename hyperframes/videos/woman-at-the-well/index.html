@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="ko" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "HF Gaegu";
+        src: url("assets/fonts/gaegu-bold.woff2") format("woff2");
+        font-weight: 700;
+      }
+      @font-face {
+        font-family: "HF Batang";
+        src: url("assets/fonts/gowunbatang-bold.woff2") format("woff2");
+        font-weight: 700;
+      }
+      :root {
+        --paper: #eee9dd;
+        --ink: #2b2433;
+        --cream: #f7f0e1;
+        --gold: #f2b84b;
+        --teal: #6fd6cf;
+        --crimson: #9e2f2e;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--paper);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--paper);
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .fade,
+      .bg,
+      .world,
+      .flood {
+        position: absolute;
+        inset: 0;
+      }
+      .world {
+        transform-origin: 50% 50%;
+      }
+      .world svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+      .flood {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .ink {
+        fill: none;
+        stroke: var(--ink);
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .rough {
+        filter: url(#rough);
+      }
+      .crayon {
+        filter: url(#crayon);
+      }
+      .nofx .rough,
+      .nofx .crayon {
+        filter: none;
+      }
+      .halo {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+      }
+
+      .cap {
+        position: absolute;
+        left: 130px;
+        bottom: 104px;
+        max-width: 1320px;
+        color: var(--cream);
+      }
+      .cap.top {
+        bottom: auto;
+        top: 110px;
+      }
+      .cap .day {
+        display: block;
+        font-family: "HF Gaegu", sans-serif;
+        font-weight: 700;
+        font-size: 76px;
+        line-height: 1;
+        color: var(--gold);
+      }
+      .cap .verse {
+        display: block;
+        margin-top: 18px;
+        font-family: "HF Batang", serif;
+        font-weight: 700;
+        font-size: 50px;
+        line-height: 1.35;
+      }
+      .cap .ref {
+        display: block;
+        margin-top: 14px;
+        font-family: "HF Batang", serif;
+        font-weight: 700;
+        font-size: 32px;
+        color: #d9cfbd;
+      }
+      .cap.big .verse {
+        font-size: 104px;
+        line-height: 1.1;
+      }
+      .cap.light {
+        color: var(--ink);
+      }
+      .cap.light .day {
+        color: var(--crimson);
+      }
+      .cap.light .ref {
+        color: #4a3f52;
+      }
+      .title {
+        position: absolute;
+        left: 140px;
+        top: 130px;
+        color: var(--ink);
+      }
+      .title .main {
+        display: block;
+        font-family: "HF Gaegu", sans-serif;
+        font-weight: 700;
+        font-size: 128px;
+        line-height: 1;
+      }
+      .title .sub {
+        display: block;
+        margin-top: 22px;
+        font-family: "HF Batang", serif;
+        font-weight: 700;
+        font-size: 42px;
+        color: #5a4a3e;
+      }
+      .title .sub b {
+        color: #1f7f86;
+        font-weight: 700;
+      }
+      .grain {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        mix-blend-mode: soft-light;
+        opacity: 0.55;
+      }
+      .vignette {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0) 55%, rgba(20, 12, 30, 0.26) 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="42" data-width="1920" data-height="1080">
+      <svg width="0" height="0" style="position: absolute">
+        <defs>
+          <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence id="rough-turb" type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="1" result="warp" />
+            <feDisplacementMap in="SourceGraphic" in2="warp" scale="5" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+          <filter id="crayon" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence id="crayon-turb" type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="1" result="warp" />
+            <feDisplacementMap in="SourceGraphic" in2="warp" scale="5" xChannelSelector="R" yChannelSelector="G" result="wob" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="7" result="grain" />
+            <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.4 0 0 0 -0.32" result="speck" />
+            <feComposite in="wob" in2="speck" operator="in" />
+          </filter>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="10" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="16" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+      </svg>
+
+      <!-- ===== S0 · 종이 위의 빈 물동이 ===== -->
+      <section id="s0" class="clip scene" data-start="0" data-duration="5.7" data-track-index="1">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 50% 60%, #f4efe4 0%, #eee9dd 60%, #e4dccb 100%)"></div>
+          <div class="world" id="s0-world">
+            <svg viewBox="0 0 1920 1080">
+              <g class="rough">
+                <path id="s0-ground" class="ink" pathLength="1" style="stroke-width: 4; opacity: 0.6" d="M 80 782 C 500 774, 900 790, 1300 780 S 1760 786, 1840 781" />
+                <g id="s0-cracks" class="ink" style="stroke-width: 3; opacity: 0.45">
+                  <path d="M 640 784 l 30 14 l 20 -6 l 26 16" />
+                  <path d="M 1220 783 l -24 12 l -30 -4" />
+                </g>
+                <g id="s0-burst" style="opacity: 0"></g>
+              </g>
+              <g id="s0-jar"></g>
+              <g transform="translate(1110 120)"><path id="s0-drop" d="M 0 -18 C 8 -4, 10 4, 0 12 C -10 4, -8 -4, 0 -18 Z" fill="#6fd6cf" stroke="#2b2433" stroke-width="3" /></g>
+            </svg>
+          </div>
+          <div class="title" id="s0-title">
+            <span class="main">우물가의 여인</span>
+            <span class="sub">요한복음 4장 · 목마른 영혼이 <b>생수</b>를 만나다</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S1 · 수가 성, 한낮 ===== -->
+      <section id="s1" class="clip scene" data-start="5.2" data-duration="5.2" data-track-index="2">
+        <div class="fade" id="s1-fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 50% 12%, #fffbe8 0%, #fde7a6 22%, #f3bf78 55%, #d98e55 100%)"></div>
+          <div class="world" id="s1-world">
+            <svg viewBox="0 0 1920 1080">
+              <g transform="translate(960 160)"><g id="s1-rays" style="opacity: 0.55"></g></g>
+              <circle id="s1-sun" cx="960" cy="160" r="110" fill="#fffdf2" stroke="#f6c86b" stroke-width="6" filter="url(#glow2)" />
+              <g class="crayon">
+                <path fill="#e7bd82" stroke="#2b2433" stroke-width="4" d="M -20 640 C 260 560, 520 600, 760 590 C 1040 576, 1300 620, 1560 580 C 1740 556, 1860 590, 1940 586 L 1940 1100 L -20 1100 Z" />
+                <g id="s1-town"></g>
+                <path fill="#dca266" stroke="#2b2433" stroke-width="5" d="M -20 760 C 400 720, 900 760, 1300 740 C 1600 726, 1800 750, 1940 744 L 1940 1100 L -20 1100 Z" />
+                <path fill="#e9b97c" opacity="0.8" stroke="#2b2433" stroke-width="3" d="M -20 880 C 500 850, 1200 860, 1940 830 L 1940 900 C 1200 930, 500 920, -20 950 Z" />
+              </g>
+              <g id="s1-heat" class="ink" style="stroke: #fff4d6; stroke-width: 4; opacity: 0.55"></g>
+              <g transform="translate(300 880) scale(0.62)"><g id="s1-woman"></g></g>
+            </svg>
+          </div>
+          <div class="cap light top" id="s1-cap">
+            <span class="day">수가 성 · 한낮</span>
+            <span class="verse">때가 여섯 시쯤 되었더라</span>
+            <span class="ref">요한복음 4:6</span>
+          </div>
+          <div class="flood" id="s1-flood" style="background: radial-gradient(circle at 50% 50%, #ffffff 0%, #fff6dc 70%, #fde7a6 100%)"></div>
+        </div>
+      </section>
+
+      <!-- ===== S2 · 우물가, 물을 좀 달라 ===== -->
+      <section id="s2" class="clip scene" data-start="10.0" data-duration="5.5" data-track-index="1">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 40% 45%, #fff3d2 0%, #f8d9a0 35%, #e8ac72 75%, #c98552 100%)"></div>
+          <div class="world" id="s2-world">
+            <div class="halo" id="s2-halo" style="left: 380px; top: 280px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255, 249, 226, 0.95) 0%, rgba(255, 236, 170, 0.45) 40%, rgba(255, 236, 170, 0) 70%)"></div>
+            <svg viewBox="0 0 1920 1080">
+              <g class="crayon">
+                <path fill="#d99b5e" stroke="#2b2433" stroke-width="5" d="M -20 820 C 500 790, 1300 810, 1940 790 L 1940 1100 L -20 1100 Z" />
+              </g>
+              <g id="s2-well-g"></g>
+              <g transform="translate(700 840) scale(1.05)"><g id="s2-jesus"></g></g>
+              <g transform="translate(1560 900) scale(-0.78 0.78)"><g id="s2-woman"></g></g>
+              <g id="s2-marks" class="ink" style="stroke-width: 4; opacity: 0">
+                <path d="M 1280 560 l -14 -26 M 1300 552 l 0 -30 M 1320 560 l 14 -26" />
+              </g>
+            </svg>
+          </div>
+          <div class="cap light top" id="s2-cap">
+            <span class="day">우물가</span>
+            <span class="verse">물을 좀 달라</span>
+            <span class="ref">요한복음 4:7</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S3 · 깊은 우물 ===== -->
+      <section id="s3" class="clip scene" data-start="15.2" data-duration="5.2" data-track-index="2">
+        <div class="fade">
+          <div class="bg" style="background: #1a1d28"></div>
+          <div class="world" id="s3-world">
+            <svg viewBox="0 0 1920 1080">
+              <g id="s3-rings"></g>
+              <g id="s3-ripples"></g>
+              <ellipse id="s3-glint" cx="975" cy="530" rx="26" ry="10" fill="#ffe7a0" filter="url(#glow)" />
+              <line id="s3-rope" x1="960" y1="-40" x2="960" y2="-40" stroke="#c9a77a" stroke-width="5" />
+              <g transform="translate(960 0)"><g id="s3-bucket"></g></g>
+            </svg>
+          </div>
+          <div class="cap" id="s3-cap">
+            <span class="day">깊은 우물</span>
+            <span class="verse">이 물을 마시는 자마다 다시 목마르려니와</span>
+            <span class="ref">요한복음 4:13</span>
+          </div>
+          <div class="flood" id="s3-flood" style="background: radial-gradient(circle at 50% 50%, #f4fffd 0%, #bff3ee 60%, #7fd9d2 100%)"></div>
+        </div>
+      </section>
+
+      <!-- ===== S4 · 생수 ===== -->
+      <section id="s4" class="clip scene" data-start="20.1" data-duration="6.1" data-track-index="1">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 78% 70%, #1d6a73 0%, #11404f 45%, #0a2333 100%)"></div>
+          <div class="world" id="s4-world">
+            <div class="halo" id="s4-halo" style="left: 1150px; top: 380px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(160, 255, 240, 0.55) 0%, rgba(120, 230, 220, 0.15) 45%, rgba(120, 230, 220, 0) 70%)"></div>
+            <svg viewBox="0 0 1920 1080">
+              <g class="crayon">
+                <path fill="#3b3a2e" stroke="#2b2433" stroke-width="5" d="M -20 960 C 400 930, 900 950, 1250 940 C 1500 934, 1760 950, 1940 944 L 1940 1100 L -20 1100 Z" />
+              </g>
+              <g id="s4-streams"></g>
+              <g id="s4-flowers"></g>
+              <g id="s4-bubbles"></g>
+            </svg>
+          </div>
+          <div class="cap" id="s4-cap" style="max-width: 1020px">
+            <span class="day">생수</span>
+            <span class="verse">나의 주는 물은 그 속에서 영생하도록 솟아나는 샘물이 되리라</span>
+            <span class="ref">요한복음 4:14</span>
+          </div>
+          <div class="flood" id="s4-flood" style="background: radial-gradient(circle at 50% 50%, #fffaf0 0%, #ffe9b0 65%, #f6c26a 100%)"></div>
+        </div>
+      </section>
+
+      <!-- ===== S5 · 내가 그라 ===== -->
+      <section id="s5" class="clip scene" data-start="25.7" data-duration="5.8" data-track-index="2">
+        <div class="fade" id="s5-fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 36% 55%, #fff4cf 0%, #fbd98c 30%, #ec9f5f 70%, #b9684a 100%)"></div>
+          <div class="world" id="s5-world">
+            <svg viewBox="0 0 1920 1080">
+              <g transform="translate(700 600)"><g id="s5-rays" style="opacity: 0.5"></g></g>
+              <circle cx="700" cy="600" r="210" fill="#fff8e0" opacity="0.55" filter="url(#glow2)" />
+              <g class="crayon">
+                <path fill="#cf8f55" stroke="#2b2433" stroke-width="5" d="M -20 820 C 500 790, 1300 810, 1940 790 L 1940 1100 L -20 1100 Z" />
+              </g>
+              <g id="s5-well-g"></g>
+              <g transform="translate(700 840) scale(1.05)"><g id="s5-jesus"></g></g>
+              <g transform="translate(1290 900) scale(-0.78 0.78)"><g id="s5-woman"></g></g>
+            </svg>
+          </div>
+          <div class="cap light top big" id="s5-cap">
+            <span class="day">메시아</span>
+            <span class="verse">네게 말하는 내가 그라</span>
+            <span class="ref">요한복음 4:26</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S6 · 와서 보라 ===== -->
+      <section id="s6" class="clip scene" data-start="30.9" data-duration="5.6" data-track-index="1">
+        <div class="fade" id="s6-fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 30% 30%, #fff1cf 0%, #f8cf92 40%, #e39a62 80%, #c27650 100%)"></div>
+          <div class="world" id="s6-world">
+            <svg viewBox="0 0 1920 1080">
+              <g class="crayon">
+                <path fill="#e3ad73" stroke="#2b2433" stroke-width="4" d="M -20 600 C 200 520, 520 540, 760 600 C 1100 660, 1500 640, 1940 620 L 1940 1100 L -20 1100 Z" />
+                <g id="s6-town"></g>
+                <path fill="#d99a5e" stroke="#2b2433" stroke-width="4" d="M -20 760 C 500 730, 1200 760, 1940 740 L 1940 1100 L -20 1100 Z" />
+              </g>
+              <g id="s6-people"></g>
+              <g transform="translate(1500 900) scale(-0.6 0.6)"><g id="s6-woman"></g></g>
+              <g id="s6-wheat"></g>
+            </svg>
+          </div>
+          <div class="cap light top big" id="s6-cap" style="left: 760px">
+            <span class="day">동네로</span>
+            <span class="verse">와서 보라</span>
+            <span class="ref">요한복음 4:29</span>
+          </div>
+          <div class="flood" id="s6-flood" style="background: radial-gradient(circle at 50% 50%, #fffaf0 0%, #d9f6f1 60%, #9fe3dc 100%)"></div>
+        </div>
+      </section>
+
+      <!-- ===== S7 · 넘치는 물동이 ===== -->
+      <section id="s7" class="clip scene" data-start="36.1" data-duration="5.9" data-track-index="2">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 50% 60%, #f4efe4 0%, #eee9dd 60%, #e4dccb 100%)"></div>
+          <div class="world" id="s7-world">
+            <svg viewBox="0 0 1920 1080">
+              <g class="rough">
+                <path class="ink" style="stroke-width: 4; opacity: 0.6" d="M 80 782 C 500 774, 900 790, 1300 780 S 1760 786, 1840 781" />
+              </g>
+              <g id="s7-pool"></g>
+              <g id="s7-jar"></g>
+              <g id="s7-over"></g>
+              <g id="s7-sprouts"></g>
+              <g id="s7-sparks"></g>
+            </svg>
+          </div>
+          <div class="title" id="s7-title">
+            <span class="main" style="font-family: 'HF Batang', serif; font-size: 70px">이는 참으로 세상의 구주신 줄 앎이라</span>
+            <span class="sub" style="font-family: 'HF Gaegu', sans-serif; font-size: 46px; color: #1f7f86">요한복음 4:42 · 우물가의 여인</span>
+          </div>
+        </div>
+      </section>
+
+      <audio id="bgm" src="assets/audio/score.m4a" data-start="0" data-duration="42" data-track-index="3" data-volume="1"></audio>
+
+      <div class="vignette"></div>
+      <svg class="grain" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+        <filter id="grainf"><feTurbulence id="grain-turb" type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="3" /><feColorMatrix type="saturate" values="0" /></filter>
+        <rect width="1920" height="1080" filter="url(#grainf)" />
+      </svg>
+    </div>
+
+    <script>
+      (function () {
+        const NS = "http://www.w3.org/2000/svg";
+        const INK = "#2b2433";
+        const $ = (s) => document.querySelector(s);
+        function rng(seed) {
+          let a = seed >>> 0;
+          return function () {
+            a = (a + 0x6d2b79f5) >>> 0;
+            let t = a;
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          };
+        }
+        function el(tag, attrs, parent) {
+          const n = document.createElementNS(NS, tag);
+          for (const k in attrs) n.setAttribute(k, attrs[k]);
+          if (parent) parent.appendChild(n);
+          return n;
+        }
+
+        // ---------- water jar (origin = base centre) ----------
+        function buildJar(root, opts) {
+          const o = Object.assign({ x: 0, y: 0, s: 1, mouth: "#142033", fill: "#c9774a" }, opts);
+          const outer = el("g", { transform: `translate(${o.x} ${o.y}) scale(${o.s})` }, root);
+          const g = el("g", {}, outer);
+          const body = "M -60 0 C -110 -20, -130 -110, -110 -170 C -96 -210, -60 -232, -44 -250 L -44 -280 L 44 -280 L 44 -250 C 60 -232, 96 -210, 110 -170 C 130 -110, 110 -20, 60 0 Z";
+          el("path", { d: body, fill: o.fill, stroke: "none" }, g);
+          el("path", { d: body, fill: o.fill, stroke: INK, "stroke-width": 6, class: "crayon" }, g);
+          el("path", { d: "M -112 -150 C -60 -136, 60 -136, 112 -150", fill: "none", stroke: "#8e4b2c", "stroke-width": 5 }, g);
+          el("path", { d: "M -100 -110 C -50 -98, 50 -98, 100 -110", fill: "none", stroke: "#8e4b2c", "stroke-width": 4, "stroke-dasharray": "14 12" }, g);
+          el("path", { d: "M -44 -250 C -90 -250, -104 -210, -96 -186", fill: "none", stroke: INK, "stroke-width": 6, "stroke-linecap": "round" }, g);
+          el("path", { d: "M 44 -250 C 90 -250, 104 -210, 96 -186", fill: "none", stroke: INK, "stroke-width": 6, "stroke-linecap": "round" }, g);
+          el("ellipse", { cx: 0, cy: -282, rx: 58, ry: 15, fill: "#b8653c", stroke: INK, "stroke-width": 5 }, g);
+          const mouth = el("ellipse", { cx: 0, cy: -282, rx: 42, ry: 9, fill: o.mouth }, g);
+          el("path", { d: "M -70 -60 C -76 -90, -74 -130, -60 -150", fill: "none", stroke: "#e8a77a", "stroke-width": 7, "stroke-linecap": "round", opacity: 0.8 }, g);
+          return { outer, g, mouth };
+        }
+
+        // ---------- woman silhouette (faces +x, origin = feet) ----------
+        function buildWoman(root, withJar) {
+          const feet = [];
+          [-22, 18].forEach((x) => feet.push(el("ellipse", { cx: x, cy: -4, rx: 18, ry: 8, fill: "#6b4a3a", stroke: INK, "stroke-width": 3 }, root)));
+          const body = el("g", {}, root);
+          const robe = "M -40 -250 C -62 -180, -74 -80, -84 -6 L 84 -6 C 74 -80, 58 -180, 38 -250 Z";
+          el("path", { d: robe, fill: "#5b6fa8", stroke: "none" }, body);
+          el("path", { d: robe, fill: "#5b6fa8", stroke: INK, "stroke-width": 5, class: "crayon" }, body);
+          el("path", { d: "M -66 -110 C -20 -100, 30 -100, 72 -112", fill: "none", stroke: "#3e4c7e", "stroke-width": 5 }, body);
+          el("ellipse", { cx: 12, cy: -282, rx: 26, ry: 30, fill: "#c99a78", stroke: INK, "stroke-width": 4 }, body);
+          el("path", { d: "M -36 -296 C -30 -334, 24 -340, 30 -312 C 14 -318, 0 -312, -2 -296 C -6 -270, -14 -236, -6 -200 L -52 -206 C -58 -236, -46 -276, -36 -296 Z", fill: "#3e4c7e", stroke: INK, "stroke-width": 4 }, body);
+          const arm = el("g", {}, body);
+          let jar = null;
+          if (withJar) {
+            el("path", { d: "M 18 -236 C 36 -270, 40 -300, 30 -330", fill: "none", stroke: "#5b6fa8", "stroke-width": 20, "stroke-linecap": "round" }, arm);
+            el("path", { d: "M 18 -236 C 36 -270, 40 -300, 30 -330", fill: "none", stroke: INK, "stroke-width": 3, "stroke-linecap": "round", opacity: 0.5 }, arm);
+            const jo = el("g", { transform: "translate(6 -318) scale(0.42)" }, body);
+            jar = buildJar(jo, {});
+          } else {
+            el("path", { d: "M 10 -236 C 30 -200, 50 -170, 70 -150", fill: "none", stroke: "#5b6fa8", "stroke-width": 20, "stroke-linecap": "round" }, arm);
+          }
+          return { feet, body, arm, jar };
+        }
+
+        // ---------- seated Jesus silhouette (faces +x, origin = seat base) ----------
+        function buildJesus(root) {
+          const g = el("g", {}, root);
+          el("rect", { x: -70, y: -60, width: 140, height: 60, rx: 10, fill: "#a99278", stroke: INK, "stroke-width": 5, class: "crayon" }, g);
+          const lap = "M -50 -150 L 70 -150 C 96 -140, 104 -90, 100 -10 L 58 -10 C 58 -60, 50 -96, 20 -104 L -50 -104 Z";
+          el("path", { d: lap, fill: "#f3ebdc", stroke: INK, "stroke-width": 5 }, g);
+          el("ellipse", { cx: 84, cy: -6, rx: 22, ry: 8, fill: "#a87a58", stroke: INK, "stroke-width": 3 }, g);
+          const torso = "M -52 -150 C -58 -210, -42 -262, -12 -272 L 30 -272 C 52 -252, 58 -200, 52 -150 Z";
+          el("path", { d: torso, fill: "#f3ebdc", stroke: INK, "stroke-width": 5 }, g);
+          el("path", { d: "M -44 -262 C -10 -230, 30 -180, 52 -150 L 30 -148 C 8 -180, -24 -220, -54 -232 Z", fill: "#a0623f", stroke: INK, "stroke-width": 4 }, g);
+          el("ellipse", { cx: 8, cy: -300, rx: 27, ry: 31, fill: "#d7a57e", stroke: INK, "stroke-width": 4 }, g);
+          el("path", { d: "M -24 -306 C -24 -336, 22 -344, 34 -316 C 20 -326, 4 -322, -2 -310 C -4 -290, -6 -270, -20 -258 C -32 -272, -30 -292, -24 -306 Z", fill: "#5c3a26", stroke: INK, "stroke-width": 3 }, g);
+          const arm = el("g", {}, g);
+          el("path", { d: "M 22 -250 C 46 -220, 66 -180, 92 -160", fill: "none", stroke: "#f3ebdc", "stroke-width": 24, "stroke-linecap": "round" }, arm);
+          el("path", { d: "M 22 -250 C 46 -220, 66 -180, 92 -160", fill: "none", stroke: INK, "stroke-width": 3, opacity: 0.45 }, arm);
+          el("circle", { cx: 98, cy: -156, r: 12, fill: "#d7a57e", stroke: INK, "stroke-width": 3 }, arm);
+          return { g, arm };
+        }
+
+        // ---------- stone well ----------
+        function buildWell(root) {
+          const g = el("g", { class: "crayon" }, root);
+          el("path", { d: "M 820 640 L 820 820 C 860 850, 1100 850, 1140 820 L 1140 640 Z", fill: "#b9a58c", stroke: INK, "stroke-width": 5 }, g);
+          for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) {
+            const x = 830 + c * 52 + (r % 2) * 24, y = 660 + r * 42;
+            el("rect", { x, y, width: 44, height: 34, rx: 8, fill: "none", stroke: "#8a755e", "stroke-width": 3 }, g);
+          }
+          el("ellipse", { cx: 980, cy: 640, rx: 170, ry: 40, fill: "#c9b69c", stroke: INK, "stroke-width": 5 }, g);
+          el("ellipse", { cx: 980, cy: 640, rx: 136, ry: 28, fill: "#1e2330", stroke: INK, "stroke-width": 4 }, g);
+          return g;
+        }
+
+        // ---------- build scenes ----------
+        // S0
+        const jar0 = buildJar($("#s0-jar"), { x: 960, y: 760, s: 1.25 });
+        const MOUTH = { x: 960, y: 760 - 282 * 1.25 }; // jar mouth on screen
+        (function () {
+          const r = rng(11), g = $("#s0-burst");
+          for (let i = 0; i < 44; i++) {
+            const a = (i / 44) * Math.PI * 2 + r() * 0.08, r0 = 320 + r() * 120, r1 = r0 + 260 + r() * 420;
+            el("path", { d: `M ${MOUTH.x + r0 * Math.cos(a)} ${MOUTH.y + r0 * Math.sin(a)} L ${MOUTH.x + r1 * Math.cos(a)} ${MOUTH.y + r1 * Math.sin(a)}`, stroke: INK, "stroke-width": 1.5 + r() * 2.5, opacity: 0.35 + r() * 0.3, "stroke-linecap": "round" }, g);
+          }
+        })();
+
+        // S1
+        (function () {
+          const rays = $("#s1-rays");
+          for (let i = 0; i < 20; i++) {
+            const a = (i / 20) * Math.PI * 2, w = 0.06;
+            el("path", { d: `M 0 0 L ${1500 * Math.cos(a - w)} ${1500 * Math.sin(a - w)} L ${1500 * Math.cos(a + w)} ${1500 * Math.sin(a + w)} Z`, fill: "#fffbe8", opacity: i % 2 ? 0.45 : 0.75 }, rays);
+          }
+          const town = $("#s1-town");
+          [[180, 600, 90, 70], [270, 590, 70, 90], [340, 604, 100, 60], [450, 596, 60, 80]].forEach(([x, y, w, h]) => {
+            el("rect", { x, y: y - h, width: w, height: h, fill: "#f0d3a6", stroke: INK, "stroke-width": 4 }, town);
+            el("rect", { x: x + w * 0.4, y: y - h * 0.55, width: w * 0.22, height: h * 0.3, fill: "#8a5a3c" }, town);
+          });
+          const heat = $("#s1-heat"), r = rng(3);
+          for (let i = 0; i < 7; i++) {
+            const y = 640 + i * 40, x = 200 + r() * 1400;
+            el("path", { d: `M ${x} ${y} q 30 -12 60 0 t 60 0 t 60 0` }, heat);
+          }
+        })();
+        const w1 = buildWoman($("#s1-woman"), true);
+
+        // S2 + S5
+        buildWell($("#s2-well-g"));
+        buildWell($("#s5-well-g"));
+        const j2 = buildJesus($("#s2-jesus"));
+        const w2 = buildWoman($("#s2-woman"), true);
+        const j5 = buildJesus($("#s5-jesus"));
+        const w5 = buildWoman($("#s5-woman"), true);
+        (function () {
+          const rays = $("#s5-rays");
+          for (let i = 0; i < 24; i++) {
+            const a = (i / 24) * Math.PI * 2, w = 0.05;
+            el("path", { d: `M 0 0 L ${1700 * Math.cos(a - w)} ${1700 * Math.sin(a - w)} L ${1700 * Math.cos(a + w)} ${1700 * Math.sin(a + w)} Z`, fill: "#fff8de", opacity: i % 2 ? 0.45 : 0.8 }, rays);
+          }
+        })();
+
+        // S3 well tunnel
+        const rings = $("#s3-rings");
+        (function () {
+          const radii = [1400, 1050, 800, 610, 470, 360, 270, 200, 145, 100];
+          radii.forEach((R, i) => {
+            const shade = 70 - i * 5;
+            el("circle", { cx: 960, cy: 540, r: R, fill: `hsl(220 12% ${shade * 0.45}%)`, stroke: INK, "stroke-width": Math.max(2, 6 - i * 0.4), class: i < 6 ? "crayon" : "" }, rings);
+            const n = Math.max(10, Math.round(R / 26));
+            for (let k = 0; k < n; k++) {
+              const a = (k / n) * Math.PI * 2 + i * 0.3;
+              const r0 = R * 0.78, r1 = R;
+              el("path", { d: `M ${960 + r0 * Math.cos(a)} ${540 + r0 * Math.sin(a)} L ${960 + r1 * Math.cos(a)} ${540 + r1 * Math.sin(a)}`, stroke: "#151821", "stroke-width": Math.max(1.5, 4 - i * 0.3), opacity: 0.55 }, rings);
+            }
+          });
+          el("circle", { cx: 960, cy: 540, r: 74, fill: "#0c2130", stroke: "#2f6f78", "stroke-width": 3 }, rings);
+        })();
+        const bucket = (function () {
+          const g = $("#s3-bucket");
+          el("path", { d: "M -60 0 L 60 0 L 48 110 L -48 110 Z", fill: "#8a5a3c", stroke: INK, "stroke-width": 6 }, g);
+          el("path", { d: "M -56 30 L 56 30 M -52 74 L 52 74", stroke: "#5c3a26", "stroke-width": 6 }, g);
+          el("path", { d: "M -60 0 C -50 -70, 50 -70, 60 0", fill: "none", stroke: INK, "stroke-width": 5 }, g);
+          return g;
+        })();
+        const ripples = [];
+        for (let i = 0; i < 4; i++) ripples.push(el("ellipse", { cx: 960, cy: 540, rx: 20, ry: 20, fill: "none", stroke: "#bff3ee", "stroke-width": 4, opacity: 0 }, $("#s3-ripples")));
+
+        // S4 living water
+        const SRC = { x: 1500, y: 950 };
+        const streams = [];
+        (function () {
+          const g = $("#s4-streams");
+          const tg = [[900, 260, -1], [640, 520, -1], [1140, 130, -1], [1760, 230, 1], [1860, 560, 1], [1340, 110, -1], [1640, 110, 1]];
+          tg.forEach(([x, y, s], i) => {
+            const cx1 = SRC.x + s * 60, cy1 = 300, cx2 = x - s * 120, cy2 = y - 160;
+            const d = `M ${SRC.x} ${SRC.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x} ${y}`;
+            const col = i % 3 === 2 ? "#ffe39a" : "#8ff0e6";
+            el("path", { d, pathLength: 1, fill: "none", stroke: col, "stroke-width": 26 - i * 2, "stroke-linecap": "round", opacity: 0.35, filter: "url(#glow2)" }, g);
+            const p = el("path", { d, pathLength: 1, fill: "none", stroke: col, "stroke-width": 10 - i * 0.6, "stroke-linecap": "round" }, g);
+            streams.push({ p, glow: p.previousSibling, end: [x, y] });
+          });
+          el("path", { id: "s4-column", d: `M ${SRC.x - 26} ${SRC.y} C ${SRC.x - 30} 700, ${SRC.x - 12} 520, ${SRC.x} 440 C ${SRC.x + 12} 520, ${SRC.x + 30} 700, ${SRC.x + 26} ${SRC.y} Z`, fill: "#b8fff6", stroke: "#e9fffc", "stroke-width": 4, filter: "url(#glow2)" }, g);
+        })();
+        const flowers = [];
+        (function () {
+          const g = $("#s4-flowers"), cols = ["#f6a8b8", "#ffe39a", "#f7f0e1", "#c9a6f0", "#ffb47a"];
+          const spots = [[900, 260], [640, 520], [1140, 130], [1760, 230], [1860, 560], [1340, 110], [1640, 110], [1300, 935], [1700, 930], [1840, 920]];
+          spots.forEach(([x, y], i) => {
+            const o = el("g", { transform: `translate(${x} ${y})` }, g);
+            const f = el("g", { class: "crayon" }, o);
+            for (let k = 0; k < 6; k++) el("ellipse", { cx: 0, cy: -20, rx: 11, ry: 20, fill: cols[i % cols.length], stroke: INK, "stroke-width": 3, transform: `rotate(${k * 60})` }, f);
+            el("circle", { r: 10, fill: "#f2b84b", stroke: INK, "stroke-width": 3 }, f);
+            flowers.push(f);
+          });
+        })();
+        const bubbles = [];
+        (function () {
+          const r = rng(31), g = $("#s4-bubbles");
+          for (let i = 0; i < 26; i++) {
+            const c = el("circle", { cx: SRC.x + (r() - 0.5) * 260, cy: 960, r: 4 + r() * 9, fill: "#cffff8", opacity: 0.7 }, g);
+            bubbles.push({ c, rise: 400 + r() * 500, dx: (r() - 0.5) * 200, d: 1.4 + r() * 1.2, t: r() * 1.5 });
+          }
+        })();
+
+        // S6 town + people + wheat
+        (function () {
+          const town = $("#s6-town");
+          [[60, 560, 110, 90], [170, 540, 90, 120], [260, 556, 120, 80], [380, 566, 80, 100], [460, 580, 110, 70]].forEach(([x, y, w, h]) => {
+            el("rect", { x, y: y - h, width: w, height: h, fill: "#f0d3a6", stroke: INK, "stroke-width": 4 }, town);
+            el("rect", { x: x + w * 0.4, y: y - h * 0.5, width: w * 0.22, height: h * 0.32, fill: "#8a5a3c" }, town);
+          });
+          el("path", { d: "M 560 600 L 560 500 A 50 50 0 0 1 660 500 L 660 600 Z", fill: "#3a2a2a", stroke: INK, "stroke-width": 4 }, town);
+        })();
+        const people = [];
+        (function () {
+          const g = $("#s6-people"), r = rng(77), cols = ["#b0503e", "#4f7a9a", "#7a5a9a", "#c98a3a", "#4f8a5a", "#9a4a6a", "#5a6aa8", "#a87a4a", "#3f7f7a", "#b8603a"];
+          for (let i = 0; i < 10; i++) {
+            const o = el("g", { transform: `translate(${610 + r() * 40} ${690 + (i % 3) * 34}) scale(${0.36 + r() * 0.08})` }, g);
+            const p = el("g", {}, o);
+            el("path", { d: "M -34 -220 C -54 -150, -64 -70, -72 -4 L 72 -4 C 64 -70, 50 -150, 32 -220 Z", fill: cols[i], stroke: INK, "stroke-width": 6 }, p);
+            el("ellipse", { cx: 0, cy: -250, rx: 28, ry: 32, fill: "#c99a78", stroke: INK, "stroke-width": 5 }, p);
+            el("path", { d: "M -30 -262 C -24 -292, 26 -294, 30 -262 C 16 -270, -16 -270, -30 -262 Z", fill: i % 2 ? "#5c3a26" : "#e8dcc4", stroke: INK, "stroke-width": 4 }, p);
+            people.push({ p, dist: 520 + r() * 520, dy: 40 + r() * 140, t: i * 0.26, dur: 2.2 + r() * 0.6 });
+          }
+        })();
+        const wheat = [];
+        (function () {
+          const g = $("#s6-wheat"), r = rng(15);
+          for (let i = 0; i < 46; i++) {
+            const x = -20 + i * 44 + r() * 20, h = 150 + r() * 90;
+            const o = el("g", { transform: `translate(${x} 1100)` }, g);
+            const s = el("g", {}, o);
+            el("path", { d: `M 0 0 C 4 ${-h * 0.4}, -4 ${-h * 0.7}, 2 ${-h}`, fill: "none", stroke: "#b88a3a", "stroke-width": 4 }, s);
+            for (let k = 0; k < 6; k++) {
+              const y = -h + k * 12;
+              el("ellipse", { cx: 2 - 6, cy: y, rx: 5, ry: 10, fill: "#f2d38a", stroke: INK, "stroke-width": 1.5, transform: `rotate(-25 -4 ${y})` }, s);
+              el("ellipse", { cx: 2 + 6, cy: y + 4, rx: 5, ry: 10, fill: "#f2d38a", stroke: INK, "stroke-width": 1.5, transform: `rotate(25 8 ${y + 4})` }, s);
+            }
+            wheat.push({ s, ph: r() });
+          }
+        })();
+        const w6 = buildWoman($("#s6-woman"), false);
+
+        // S7 jar overflowing
+        const jar7 = buildJar($("#s7-jar"), { x: 960, y: 760, s: 1.25, mouth: "#7fe3da" });
+        const MOUTH7 = { x: 960, y: 760 - 282 * 1.25 };
+        const pool = el("ellipse", { cx: 960, cy: 782, rx: 260, ry: 22, fill: "#9fe3dc", stroke: INK, "stroke-width": 3, opacity: 0 }, $("#s7-pool"));
+        const overs = ["M 912 410 C 880 430, 840 470, 836 560 C 832 640, 850 720, 830 778", "M 1008 410 C 1040 430, 1080 470, 1084 560 C 1088 640, 1070 720, 1092 778", "M 960 404 C 930 400, 900 410, 880 430"].map((d) =>
+          el("path", { d, pathLength: 1, fill: "none", stroke: "#6fd6cf", "stroke-width": 14, "stroke-linecap": "round", class: "rough" }, $("#s7-over"))
+        );
+        const sprouts = [];
+        [[620, 782, 1], [760, 784, 0.8], [1180, 783, 0.9], [1330, 781, 1.1], [520, 782, 0.7], [1440, 782, 0.75]].forEach(([x, y, s], i) => {
+          const o = el("g", { transform: `translate(${x} ${y}) scale(${s})` }, $("#s7-sprouts"));
+          const g = el("g", { class: "crayon" }, o);
+          el("path", { d: "M 0 0 C 2 -30, -2 -50, 0 -70", fill: "none", stroke: "#4f8a3c", "stroke-width": 6, "stroke-linecap": "round" }, g);
+          el("path", { d: "M 0 -40 C -30 -60, -44 -50, -46 -40 C -30 -34, -12 -34, 0 -40 Z", fill: "#7ab85a", stroke: INK, "stroke-width": 3 }, g);
+          el("path", { d: "M 0 -52 C 30 -74, 44 -64, 46 -54 C 30 -46, 12 -46, 0 -52 Z", fill: "#7ab85a", stroke: INK, "stroke-width": 3 }, g);
+          if (i % 2 === 0) for (let k = 0; k < 5; k++) el("ellipse", { cx: 0, cy: -84, rx: 8, ry: 14, fill: ["#f6a8b8", "#ffe39a", "#c9a6f0"][i % 3], stroke: INK, "stroke-width": 2.5, transform: `rotate(${k * 72} 0 -70)` }, g);
+          sprouts.push(g);
+        });
+        const sparks = [];
+        [[1220, 380, 1], [700, 420, 0.8], [1300, 560, 0.7], [640, 600, 0.6]].forEach(([x, y, s]) => {
+          const o = el("g", { transform: `translate(${x} ${y}) scale(${s})` }, $("#s7-sparks"));
+          const g = el("g", {}, o);
+          el("path", { d: "M 0 -30 C 4 -6, 6 -4, 30 0 C 6 4, 4 6, 0 30 C -4 6, -6 4, -30 0 C -6 -4, -4 -6, 0 -30 Z", fill: "#8ff0e6", stroke: INK, "stroke-width": 3 }, g);
+          sparks.push(g);
+        });
+
+        // ---------- camera (viewport-change: T = -offset × S) ----------
+        function camera(world) {
+          const st = { S: 1, c: 0, ox: 0, oy: 0 };
+          const apply = () => {
+            const tx = st.ox * (1 - st.c) - st.S * st.ox, ty = st.oy * (1 - st.c) - st.S * st.oy;
+            world.style.transform = `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${st.S.toFixed(4)})`;
+            world.classList.toggle("nofx", st.S > 2.2);
+          };
+          return {
+            set(ox, oy, S, c) { Object.assign(st, { ox, oy, S, c }); apply(); },
+            move(tl, { ox, oy, s0, s1, c0, c1, at, dur, ease }) {
+              const p = { v: 0 };
+              tl.fromTo(p, { v: 0 }, { v: 1, duration: dur, ease, onUpdate() {
+                st.ox = ox; st.oy = oy; st.S = s0 * Math.pow(s1 / s0, p.v); st.c = c0 + (c1 - c0) * p.v; apply();
+              } }, at);
+            },
+          };
+        }
+        const cam = {};
+        ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7"].forEach((k) => (cam[k] = camera($(`#${k}-world`))));
+        cam.s7.set(MOUTH7.x - 960, MOUTH7.y - 540, 90, 1);
+
+        // ---------- timeline ----------
+        const tl = gsap.timeline({ paused: true });
+        tl.fromTo("#rough-turb", { attr: { seed: 1 } }, { attr: { seed: 337 }, duration: 42, ease: "steps(336)" }, 0);
+        tl.fromTo("#crayon-turb", { attr: { seed: 1 } }, { attr: { seed: 337 }, duration: 42, ease: "steps(336)" }, 0);
+        tl.fromTo("#grain-turb", { attr: { seed: 3 } }, { attr: { seed: 507 }, duration: 42, ease: "steps(504)" }, 0);
+
+        function capIn(id, at) {
+          tl.fromTo(`${id} .day`, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.6)" }, at);
+          tl.fromTo(`${id} .verse`, { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.0, ease: "power2.out" }, at + 0.25);
+          tl.fromTo(`${id} .ref`, { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.5, ease: "sine.out" }, at + 0.8);
+        }
+        function capOut(id, at) {
+          tl.to(id, { opacity: 0, filter: "blur(8px)", duration: 0.45, ease: "power2.in" }, at);
+        }
+        function fadeIn(id, at, dur) {
+          tl.fromTo(`${id} .fade`, { opacity: 0 }, { opacity: 1, duration: dur || 0.4, ease: "sine.inOut" }, at);
+        }
+        function walk(w, at, steps, half, bob) {
+          w.feet.forEach((f, i) => tl.fromTo(f, { x: i ? 10 : -10 }, { x: i ? -10 : 10, duration: half, ease: "sine.inOut", yoyo: true, repeat: steps - 1 }, at));
+          tl.fromTo(w.body, { y: 0 }, { y: -bob, duration: half / 2, ease: "sine.inOut", yoyo: true, repeat: steps * 2 - 1 }, at);
+        }
+
+        // ===== S0 (0 – 5.7) =====
+        tl.fromTo("#s0-ground", { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.0, ease: "power2.out" }, 0.1);
+        tl.fromTo("#s0-cracks", { opacity: 0 }, { opacity: 0.45, duration: 0.6 }, 0.8);
+        tl.fromTo(jar0.g, { scale: 0.6, opacity: 0, svgOrigin: "0 0" }, { scale: 1, opacity: 1, svgOrigin: "0 0", duration: 0.7, ease: "back.out(1.8)" }, 0.3);
+        tl.fromTo("#s0-title .main", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "back.out(1.4)" }, 0.6);
+        tl.fromTo("#s0-title .sub", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.0, ease: "power2.out" }, 1.1);
+        tl.fromTo("#s0-drop", { y: 0, opacity: 0 }, { y: 250, opacity: 1, duration: 0.8, ease: "power2.in" }, 2.2);
+        tl.to("#s0-drop", { opacity: 0, duration: 0.1 }, 3.0);
+        tl.fromTo(jar0.mouth, { attr: { fill: "#142033" } }, { attr: { fill: "#24506a" }, duration: 0.25, yoyo: true, repeat: 1 }, 3.0);
+        tl.fromTo("#s0-burst", { opacity: 0, scale: 0.85, svgOrigin: `${MOUTH.x} ${MOUTH.y}` }, { opacity: 1, scale: 1, svgOrigin: `${MOUTH.x} ${MOUTH.y}`, duration: 0.5, ease: "power3.out" }, 3.6);
+        tl.fromTo("#s0-burst", { rotation: 0, svgOrigin: `${MOUTH.x} ${MOUTH.y}` }, { rotation: 8, svgOrigin: `${MOUTH.x} ${MOUTH.y}`, duration: 2.1, ease: "none", immediateRender: false }, 3.6);
+        tl.to("#s0-title", { opacity: 0, filter: "blur(10px)", duration: 0.5, ease: "power2.in" }, 4.2);
+        cam.s0.move(tl, { ox: MOUTH.x - 960, oy: MOUTH.y - 540, s0: 1, s1: 130, c0: 0, c1: 1, at: 4.2, dur: 1.2, ease: "power2.in" });
+
+        // ===== S1 (5.2 – 10.4) — iris opens from the dark jar =====
+        tl.fromTo("#s1-fade", { clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(75% at 50% 50%)", duration: 0.8, ease: "power2.out" }, 5.35);
+        tl.fromTo("#s1-rays", { rotation: 0, svgOrigin: "0 0" }, { rotation: 24, svgOrigin: "0 0", duration: 5.2, ease: "none" }, 5.2);
+        tl.fromTo("#s1-sun", { attr: { r: 104 } }, { attr: { r: 122 }, duration: 0.9, ease: "sine.inOut", yoyo: true, repeat: 3 }, 5.2);
+        tl.fromTo("#s1-heat", { x: -30, opacity: 0.2 }, { x: 30, opacity: 0.6, duration: 1.3, ease: "sine.inOut", yoyo: true, repeat: 2 }, 5.4);
+        tl.fromTo("#s1-woman", { x: 0 }, { x: 1180, duration: 3.8, ease: "none" }, 5.4);
+        walk(w1, 5.4, 10, 0.38, 6);
+        capIn("#s1-cap", 5.9);
+        capOut("#s1-cap", 9.2);
+        cam.s1.move(tl, { ox: 0, oy: 160 - 540, s0: 1, s1: 26, c0: 0, c1: 1, at: 9.2, dur: 1.0, ease: "power2.in" });
+        tl.fromTo("#s1-flood", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.in" }, 9.85);
+
+        // ===== S2 (10.0 – 15.5) =====
+        fadeIn("#s2", 10.1, 0.4);
+        cam.s2.move(tl, { ox: 0, oy: 0, s0: 1.12, s1: 1, c0: 0, c1: 0, at: 10.1, dur: 1.4, ease: "power2.out" });
+        tl.fromTo("#s2-halo", { scale: 0.92, opacity: 0.85 }, { scale: 1.06, opacity: 1, duration: 1.1, ease: "sine.inOut", yoyo: true, repeat: 3 }, 10.1);
+        tl.fromTo("#s2-woman", { x: -300 }, { x: 0, duration: 1.9, ease: "power1.out" }, 10.3);
+        walk(w2, 10.3, 5, 0.38, 6);
+        tl.fromTo(j2.arm, { rotation: 0, svgOrigin: "22 -250" }, { rotation: -38, svgOrigin: "22 -250", duration: 0.5, ease: "back.out(2)" }, 12.2);
+        capIn("#s2-cap", 12.3);
+        tl.fromTo(w2.jar.outer, { y: 0, x: 0 }, { y: 340, x: 90, duration: 0.5, ease: "power2.inOut" }, 13.1);
+        tl.fromTo(w2.arm, { rotation: 0, svgOrigin: "18 -236" }, { rotation: 50, svgOrigin: "18 -236", duration: 0.5, ease: "power2.inOut" }, 13.1);
+        tl.fromTo("#s2-woman", { x: 0 }, { x: -24, duration: 0.3, ease: "back.out(2)", immediateRender: false }, 13.5);
+        tl.fromTo("#s2-marks", { opacity: 0, scale: 0.6, svgOrigin: "1300 560" }, { opacity: 1, scale: 1, svgOrigin: "1300 560", duration: 0.25, ease: "back.out(3)" }, 13.5);
+        capOut("#s2-cap", 14.35);
+        tl.to("#s2-marks", { opacity: 0, duration: 0.2 }, 14.35);
+        cam.s2.move(tl, { ox: 980 - 960, oy: 645 - 540, s0: 1, s1: 40, c0: 0, c1: 1, at: 14.35, dur: 1.0, ease: "power2.in" });
+
+        // ===== S3 (15.2 – 20.4) — down the well =====
+        fadeIn("#s3", 15.3, 0.3);
+        tl.fromTo("#s3-rings", { scale: 1, rotation: 0, svgOrigin: "960 540" }, { scale: 1.7, rotation: 25, svgOrigin: "960 540", duration: 5.2, ease: "sine.inOut" }, 15.2);
+        tl.fromTo("#s3-bucket", { y: -160, scale: 1.4, svgOrigin: "0 0" }, { y: 470, scale: 0.18, svgOrigin: "0 0", duration: 2.8, ease: "power2.in" }, 15.5);
+        tl.fromTo("#s3-rope", { attr: { y2: -40 } }, { attr: { y2: 490 }, duration: 2.8, ease: "power2.in" }, 15.5);
+        capIn("#s3-cap", 15.9);
+        ripples.forEach((r, i) => tl.fromTo(r, { attr: { rx: 10, ry: 10 }, opacity: 0.9 }, { attr: { rx: 70 + i * 10, ry: 70 + i * 10 }, opacity: 0, duration: 1.1, ease: "power2.out" }, 18.3 + i * 0.18));
+        tl.fromTo("#s3-glint", { opacity: 0.6, scale: 1, svgOrigin: "975 530" }, { opacity: 1, scale: 1.5, svgOrigin: "975 530", duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 5 }, 15.4);
+        capOut("#s3-cap", 19.25);
+        cam.s3.move(tl, { ox: 0, oy: 0, s0: 1, s1: 40, c0: 0, c1: 1, at: 19.25, dur: 1.0, ease: "power2.in" });
+        tl.fromTo("#s3-flood", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.in" }, 19.85);
+
+        // ===== S4 (20.1 – 26.2) — living water =====
+        fadeIn("#s4", 20.15, 0.45);
+        tl.fromTo("#s4-column", { scaleY: 0, svgOrigin: `${SRC.x} ${SRC.y}` }, { scaleY: 1, svgOrigin: `${SRC.x} ${SRC.y}`, duration: 0.7, ease: "back.out(1.6)" }, 20.4);
+        tl.to("#s4-column", { scaleX: 1.15, svgOrigin: `${SRC.x} ${SRC.y}`, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 15 }, 21.1);
+        tl.fromTo("#s4-halo", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.0, ease: "power2.out" }, 20.4);
+        streams.forEach((s, i) => {
+          tl.fromTo([s.p, s.glow], { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.1, ease: "power2.out" }, 20.9 + i * 0.16);
+        });
+        flowers.forEach((f, i) => tl.fromTo(f, { scale: 0, rotation: -60, svgOrigin: "0 0" }, { scale: 1, rotation: 0, svgOrigin: "0 0", duration: 0.45, ease: "back.out(2.6)" }, 21.9 + i * 0.09));
+        bubbles.forEach((b) => tl.fromTo(b.c, { y: 0, x: 0, opacity: 0 }, { y: -b.rise, x: b.dx, opacity: 0.8, duration: b.d, ease: "sine.out", repeat: Math.max(0, Math.floor(4.4 / b.d) - 1) }, 20.6 + b.t));
+        capIn("#s4-cap", 21.3);
+        capOut("#s4-cap", 25.2);
+        tl.fromTo("#s4-flood", { opacity: 0 }, { opacity: 1, duration: 0.55, ease: "power2.in" }, 25.3);
+
+        // ===== S5 (25.7 – 31.5) — "I am he" =====
+        fadeIn("#s5", 25.8, 0.45);
+        tl.fromTo("#s5-rays", { rotation: 0, scale: 0.5, svgOrigin: "0 0" }, { rotation: 20, scale: 1, svgOrigin: "0 0", duration: 5.6, ease: "power1.out" }, 25.8);
+        tl.fromTo(j5.arm, { rotation: 0, svgOrigin: "22 -250" }, { rotation: -60, svgOrigin: "22 -250", duration: 0.6, ease: "back.out(1.8)" }, 26.4);
+        capIn("#s5-cap", 26.6);
+        tl.fromTo(w5.jar.outer, { y: 0, x: 0 }, { y: 745, x: 230, duration: 0.6, ease: "power2.inOut" }, 28.3);
+        tl.fromTo(w5.arm, { rotation: 0, svgOrigin: "18 -236" }, { rotation: 70, svgOrigin: "18 -236", duration: 0.6, ease: "power2.inOut" }, 28.3);
+        tl.fromTo(w5.body, { scaleY: 1, svgOrigin: "0 0" }, { scaleY: 0.9, svgOrigin: "0 0", duration: 0.5, ease: "power2.out" }, 28.9);
+        // push right → next scene enters from the left
+        capOut("#s5-cap", 30.4);
+        tl.to("#s5-fade", { x: 1920, duration: 0.6, ease: "power3.in" }, 30.75);
+
+        // ===== S6 (30.9 – 36.5) — "Come, see" =====
+        tl.fromTo("#s6-fade", { x: -1920 }, { x: 0, duration: 0.6, ease: "power3.out" }, 31.0);
+        tl.fromTo("#s6-woman", { x: 0 }, { x: 1400, duration: 2.0, ease: "power1.in" }, 31.4);
+        walk(w6, 31.4, 8, 0.25, 10);
+        people.forEach((p) => {
+          tl.fromTo(p.p, { x: 0, y: 0, opacity: 0 }, { x: p.dist, y: p.dy, opacity: 1, duration: p.dur, ease: "power1.inOut" }, 33.1 + p.t);
+          tl.fromTo(p.p, { rotation: -3, svgOrigin: "0 0" }, { rotation: 3, svgOrigin: "0 0", duration: 0.22, ease: "sine.inOut", yoyo: true, repeat: Math.max(0, Math.floor(p.dur / 0.22) - 1) }, 33.1 + p.t);
+        });
+        wheat.forEach((w) => tl.fromTo(w.s, { rotation: -4, svgOrigin: "0 0" }, { rotation: 4, svgOrigin: "0 0", duration: 0.9 + w.ph * 0.4, ease: "sine.inOut", yoyo: true, repeat: 4 }, 31.0 + w.ph * 0.4));
+        capIn("#s6-cap", 31.7);
+        capOut("#s6-cap", 35.6);
+        tl.fromTo("#s6-flood", { opacity: 0 }, { opacity: 1, duration: 0.55, ease: "power2.in" }, 35.6);
+
+        // ===== S7 (36.1 – 42) — the jar overflows =====
+        fadeIn("#s7", 36.15, 0.35);
+        cam.s7.move(tl, { ox: MOUTH7.x - 960, oy: MOUTH7.y - 540, s0: 90, s1: 1, c0: 1, c1: 0, at: 36.1, dur: 1.6, ease: "power3.out" });
+        overs.forEach((o, i) => tl.fromTo(o, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.9, ease: "power1.in" }, 37.3 + i * 0.1));
+        tl.fromTo(pool, { opacity: 0, attr: { rx: 40 } }, { opacity: 0.85, attr: { rx: 300 }, duration: 1.2, ease: "power2.out" }, 38.1);
+        sprouts.forEach((s, i) => tl.fromTo(s, { scaleY: 0, svgOrigin: "0 0" }, { scaleY: 1, svgOrigin: "0 0", duration: 0.5, ease: "back.out(2)" }, 38.3 + i * 0.12));
+        sparks.forEach((s, i) => {
+          tl.fromTo(s, { scale: 0, rotation: -30, svgOrigin: "0 0" }, { scale: 1, rotation: 0, svgOrigin: "0 0", duration: 0.4, ease: "back.out(2.6)" }, 38.6 + i * 0.1);
+          tl.to(s, { rotation: 25, svgOrigin: "0 0", duration: 2.0, ease: "sine.inOut" }, 39.0 + i * 0.1);
+        });
+        tl.fromTo("#s7-title .main", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "back.out(1.4)" }, 38.6);
+        tl.fromTo("#s7-title .sub", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.5, ease: "sine.out" }, 39.2);
+
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>
