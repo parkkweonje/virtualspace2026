@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="ko" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "HF Gaegu";
+        src: url("assets/fonts/gaegu-bold.woff2") format("woff2");
+        font-weight: 700;
+      }
+      @font-face {
+        font-family: "HF Batang";
+        src: url("assets/fonts/gowunbatang-bold.woff2") format("woff2");
+        font-weight: 700;
+      }
+      :root {
+        --paper: #eee9dd;
+        --ink: #2b2433;
+        --cream: #f7f0e1;
+        --gold: #f2b84b;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #1b1726;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #1b1726;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .fade,
+      .bg,
+      .world,
+      .shade,
+      .flood {
+        position: absolute;
+        inset: 0;
+      }
+      .world {
+        transform-origin: 50% 50%;
+      }
+      .world svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+      .shade,
+      .flood {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .ink {
+        fill: none;
+        stroke: var(--ink);
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .rough {
+        filter: url(#rough);
+      }
+      .crayon {
+        filter: url(#crayon);
+      }
+      .nofx .rough,
+      .nofx .crayon {
+        filter: none;
+      }
+      .halo {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      /* narration subtitles */
+      #subs {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 70px;
+        display: flex;
+        justify-content: center;
+        pointer-events: none;
+      }
+      .sub {
+        position: absolute;
+        bottom: 0;
+        max-width: 1500px;
+        padding: 18px 40px 20px;
+        border-radius: 22px;
+        background: rgba(24, 18, 30, 0.62);
+        color: var(--cream);
+        font-family: "HF Batang", serif;
+        font-weight: 700;
+        font-size: 44px;
+        line-height: 1.4;
+        text-align: center;
+        opacity: 0;
+      }
+      .sub .q {
+        color: #ffd77a;
+      }
+      .sub .ref {
+        display: block;
+        margin-top: 6px;
+        font-size: 28px;
+        color: #e7d8b8;
+      }
+      .chapter {
+        position: absolute;
+        left: 120px;
+        top: 96px;
+        color: var(--ink);
+        opacity: 0;
+      }
+      .chapter .no {
+        display: block;
+        font-family: "HF Gaegu", sans-serif;
+        font-weight: 700;
+        font-size: 44px;
+        color: #9e2f2e;
+      }
+      .chapter .name {
+        display: block;
+        font-family: "HF Gaegu", sans-serif;
+        font-weight: 700;
+        font-size: 96px;
+        line-height: 1;
+        text-shadow: 0 2px 14px rgba(255, 246, 220, 0.8);
+      }
+      .grain {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        mix-blend-mode: soft-light;
+        opacity: 0.55;
+      }
+      .vignette {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0) 55%, rgba(20, 12, 30, 0.28) 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="78" data-width="1920" data-height="1080">
+      <svg width="0" height="0" style="position: absolute">
+        <defs>
+          <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence id="rough-turb" type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="1" result="warp" />
+            <feDisplacementMap in="SourceGraphic" in2="warp" scale="5" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+          <filter id="crayon" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence id="crayon-turb" type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="1" result="warp" />
+            <feDisplacementMap in="SourceGraphic" in2="warp" scale="5" xChannelSelector="R" yChannelSelector="G" result="wob" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="7" result="grain" />
+            <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.4 0 0 0 -0.32" result="speck" />
+            <feComposite in="wob" in2="speck" operator="in" />
+          </filter>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="10" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="16" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+      </svg>
+
+      <!-- ===== A · 야곱의 장막, 채색옷, 형들의 질투 (0 – 44.4) ===== -->
+      <section id="sA" class="clip scene" data-start="0" data-duration="44.4" data-track-index="1">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 40% 25%, #fff4d8 0%, #f6d7a2 40%, #e2a66e 80%, #c4824f 100%)"></div>
+          <div class="world" id="sA-world">
+            <svg viewBox="0 0 1920 1080">
+              <g class="crayon">
+                <path fill="#e2b47e" stroke="#2b2433" stroke-width="4" d="M -400 640 C 100 580, 600 610, 1000 600 C 1500 590, 1900 620, 2400 600 L 2400 1100 L -400 1100 Z" />
+                <path fill="#d39d63" stroke="#2b2433" stroke-width="4" d="M -400 860 C 300 840, 1200 860, 2400 840 L 2400 1300 L -400 1300 Z" />
+              </g>
+              <g id="sA-tents"></g>
+              <g id="sA-sheep"></g>
+              <g transform="translate(720 880) scale(0.95)"><g id="sA-jacob"></g></g>
+              <g transform="translate(930 880) scale(0.9)"><g id="sA-joseph"></g></g>
+              <g id="sA-brothers"></g>
+              <g id="sA-cloud" class="ink rough" style="stroke: #3a2d3f; stroke-width: 11; opacity: 0"></g>
+            </svg>
+          </div>
+          <div class="shade" id="sA-envy" style="background: radial-gradient(ellipse at 70% 60%, rgba(60, 80, 50, 0.15) 0%, rgba(40, 46, 40, 0.55) 100%)"></div>
+          <div class="chapter" id="chap">
+            <span class="no">1장</span>
+            <span class="name">채색옷과 꿈</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== B · 꿈 1: 곡식 단 (43.9 – 55.2) ===== -->
+      <section id="sB" class="clip scene" data-start="43.9" data-duration="11.3" data-track-index="2">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 50% 30%, #fff6dc 0%, #f3dcae 40%, #c9b2d6 85%, #a693c6 100%)"></div>
+          <div class="world" id="sB-world">
+            <div class="halo" id="sB-glow" style="left: 660px; top: 260px; width: 600px; height: 600px; opacity: 0; background: radial-gradient(circle, rgba(255, 236, 160, 0.85) 0%, rgba(255, 236, 160, 0.25) 45%, rgba(255, 236, 160, 0) 70%)"></div>
+            <svg viewBox="0 0 1920 1080">
+              <g class="crayon">
+                <path fill="#e9c77a" stroke="#2b2433" stroke-width="4" d="M -20 700 C 500 670, 1300 690, 1940 670 L 1940 1100 L -20 1100 Z" />
+              </g>
+              <g id="sB-stubble" class="ink" style="stroke: #b48a3a; stroke-width: 3; opacity: 0.7"></g>
+              <g id="sB-sheaves"></g>
+            </svg>
+          </div>
+          <div class="shade" id="sB-dusk" style="background: #2a2350"></div>
+        </div>
+      </section>
+
+      <!-- ===== C · 꿈 2: 해와 달과 열한 별 (54.6 – 60.6) ===== -->
+      <section id="sC" class="clip scene" data-start="54.6" data-duration="6.0" data-track-index="1">
+        <div class="fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 50% 60%, #2f3a7a 0%, #1a1f4a 50%, #0c0f28 100%)"></div>
+          <div class="world" id="sC-world">
+            <svg viewBox="0 0 1920 1080">
+              <g id="sC-dust"></g>
+              <g transform="translate(960 700)"><g id="sC-center"></g></g>
+              <g id="sC-bowers"></g>
+            </svg>
+          </div>
+          <div class="flood" id="sC-flood" style="background: radial-gradient(circle at 50% 50%, #fffaf0 0%, #ffe6a8 60%, #f6c26a 100%)"></div>
+        </div>
+      </section>
+
+      <!-- ===== D · 밤의 장막, 꾸짖음과 간직함 (60.1 – 70.6) ===== -->
+      <section id="sD" class="clip scene" data-start="60.1" data-duration="10.5" data-track-index="2">
+        <div class="fade" id="sD-fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 50% 45%, #5a3a2c 0%, #2e2030 55%, #160f1c 100%)"></div>
+          <div class="world" id="sD-world">
+            <div class="halo" id="sD-lamp-glow" style="left: 660px; top: 240px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255, 200, 120, 0.55) 0%, rgba(255, 200, 120, 0.14) 45%, rgba(255, 200, 120, 0) 70%)"></div>
+            <svg viewBox="0 0 1920 1080">
+              <g class="crayon">
+                <path fill="#3d2a2a" stroke="#2b2433" stroke-width="4" d="M -20 860 C 500 840, 1300 850, 1940 836 L 1940 1100 L -20 1100 Z" />
+                <path fill="none" stroke="#7a5a48" stroke-width="6" d="M 120 120 C 600 40, 1320 40, 1800 120" />
+              </g>
+              <g transform="translate(960 520)"><g id="sD-lamp"></g></g>
+              <g transform="translate(700 880) scale(1.05)"><g id="sD-jacob"></g></g>
+              <g transform="translate(1250 880) scale(1.0)"><g id="sD-joseph"></g></g>
+              <g transform="translate(700 880) scale(1.05)"><circle id="sD-heart" cx="20" cy="-190" r="16" fill="#ffd77a" filter="url(#glow2)" opacity="0" /></g>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== E · 꿈 꾸는 자가 오는도다 (70.1 – 78) ===== -->
+      <section id="sE" class="clip scene" data-start="70.1" data-duration="7.9" data-track-index="1">
+        <div class="fade" id="sE-fade">
+          <div class="bg" style="background: radial-gradient(ellipse at 25% 30%, #fff1cf 0%, #f2c98e 40%, #c98a5c 80%, #8e5a40 100%)"></div>
+          <div class="world" id="sE-world">
+            <svg viewBox="0 0 1920 1080">
+              <g class="crayon">
+                <path fill="#d9a873" stroke="#2b2433" stroke-width="4" d="M -20 560 C 200 500, 500 520, 760 600 C 1100 690, 1500 650, 1940 640 L 1940 1100 L -20 1100 Z" />
+              </g>
+              <g transform="translate(380 548) scale(0.22)"><g id="sE-joseph"></g></g>
+              <g id="sE-cloud" class="ink rough" style="stroke: #3a2d3f; stroke-width: 9; opacity: 0"></g>
+              <g id="sE-brothers"></g>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <div id="subs"></div>
+
+      <audio id="bgm" src="assets/audio/score.m4a" data-start="0" data-duration="78" data-track-index="3" data-volume="1"></audio>
+
+      <div class="vignette"></div>
+      <svg class="grain" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+        <filter id="grainf"><feTurbulence id="grain-turb" type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="3" /><feColorMatrix type="saturate" values="0" /></filter>
+        <rect width="1920" height="1080" filter="url(#grainf)" />
+      </svg>
+    </div>
+
+    <script>
+      (function () {
+        // [start, duration, text, isVerse] — estimated narration timing (SCRIPT.md, Line 1)
+        const LINES = [[1.0, 4.36, "가나안 땅에 야곱이라는 사람이 살았습니다.", false], [5.36, 8.28, "그에게는 열두 아들이 있었는데, 야곱은 늙어서 얻은 아들 요셉을 누구보다 사랑했습니다.", false], [13.64, 11.98, "성경은 이렇게 말합니다. '이스라엘이 여러 아들들보다 요셉을 더 사랑하므로 그를 위하여 채색옷을 지었더니.'", true], [25.62, 5.45, "그 옷은 아버지의 특별한 사랑을 보여 주는 표시였습니다.", false], [31.07, 4.36, "하지만 형들의 눈에는 질투의 불씨였습니다.", false], [35.43, 3.28, "형들은 그런 요셉이 미웠습니다.", false], [38.71, 5.23, "형들은 요셉에게 다정한 말 한마디 건네지 않았습니다.", false], [43.94, 3.71, "어느 날 요셉이 꿈 이야기를 했습니다.", false], [47.65, 6.97, "\"밭에서 곡식 단을 묶는데, 내 단은 일어서고 형들의 단이 내 단에 절을 했어요.\"", false], [54.62, 5.45, "또 다른 꿈에서는 해와 달과 열한 별이 그에게 절했습니다.", false], [60.07, 4.8, "이번에는 아버지 야곱마저 요셉을 꾸짖었습니다.", false], [64.87, 5.23, "그러면서도 야곱은 그 말을 마음에 간직해 두었습니다.", false], [70.1, 3.28, "형들의 미움은 더 깊어졌습니다.", false], [73.38, 3.01, "'꿈 꾸는 자가 오는도다.'", true]];
+        const REFS = { 2: "창세기 37:3", 13: "창세기 37:19" };
+
+        const NS = "http://www.w3.org/2000/svg";
+        const INK = "#2b2433";
+        const $ = (s) => document.querySelector(s);
+        function rng(seed) {
+          let a = seed >>> 0;
+          return function () {
+            a = (a + 0x6d2b79f5) >>> 0;
+            let t = a;
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          };
+        }
+        function el(tag, attrs, parent) {
+          const n = document.createElementNS(NS, tag);
+          for (const k in attrs) n.setAttribute(k, attrs[k]);
+          if (parent) parent.appendChild(n);
+          return n;
+        }
+        function cloudPath(cx, cy, rx, ry, n, bulge) {
+          const pts = [];
+          for (let i = 0; i < n; i++) {
+            const a = (i / n) * Math.PI * 2;
+            pts.push([cx + rx * Math.cos(a), cy + ry * Math.sin(a)]);
+          }
+          let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+          for (let i = 0; i < n; i++) {
+            const p = pts[i], q = pts[(i + 1) % n], r = Math.hypot(q[0] - p[0], q[1] - p[1]) * bulge;
+            d += ` A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${q[0].toFixed(1)} ${q[1].toFixed(1)}`;
+          }
+          return d + " Z";
+        }
+
+        // ---------- people (faceless, faces +x, origin = feet) ----------
+        let clipN = 0;
+        const STRIPES = ["#c0473f", "#e3b04a", "#3f8f6c", "#3f6aa8", "#7a4e9a", "#d0704a", "#e3b04a"];
+        function buildPerson(root, o) {
+          const g = el("g", {}, root);
+          const robeC = o.robe || "#8a6a4a";
+          if (o.seated) {
+            el("rect", { x: -64, y: -56, width: 128, height: 56, rx: 10, fill: "#7a5a40", stroke: INK, "stroke-width": 5 }, g);
+          } else {
+            [-24, 16].forEach((x) => el("ellipse", { cx: x, cy: -4, rx: 18, ry: 8, fill: "#6b4a3a", stroke: INK, "stroke-width": 3 }, g));
+          }
+          const body = el("g", {}, g);
+          const robe = o.seated
+            ? "M -50 -240 C -58 -200, -60 -150, -56 -110 L 70 -110 C 96 -100, 104 -60, 100 -8 L 58 -8 C 58 -50, 50 -66, 20 -70 L -56 -70 C -60 -150, -58 -200, -50 -240 Z"
+            : "M -40 -236 C -60 -166, -70 -86, -80 -6 L 80 -6 C 70 -86, 56 -166, 38 -236 Z";
+          el("path", { d: robe, fill: robeC, stroke: "none" }, body);
+          const stripes = [];
+          if (o.coat) {
+            const id = `coat${++clipN}`;
+            const cp = el("clipPath", { id }, body);
+            el("path", { d: robe }, cp);
+            const sg = el("g", { "clip-path": `url(#${id})` }, body);
+            STRIPES.forEach((c, i) => stripes.push(el("rect", { x: -90, y: -236 + i * 34, width: 180, height: 34, fill: c }, sg)));
+          }
+          el("path", { d: robe, fill: "none", stroke: INK, "stroke-width": 5, class: "crayon" }, body);
+          el("path", { d: o.seated ? "M -54 -150 L 54 -150" : "M -62 -120 L 64 -120", stroke: "#4a3426", "stroke-width": 6 }, body);
+          const head = el("g", {}, body);
+          el("ellipse", { cx: 10, cy: -266, rx: 27, ry: 31, fill: "#c99a78", stroke: INK, "stroke-width": 4 }, head);
+          if (o.beard) el("path", { d: "M -6 -258 C 10 -230, 40 -226, 36 -250 C 30 -238, 14 -238, -6 -258 Z", fill: o.beard, stroke: INK, "stroke-width": 3 }, head);
+          if (o.scarf) el("path", { d: "M -34 -282 C -28 -320, 26 -326, 32 -298 C 16 -304, 2 -298, 0 -282 C -4 -258, -12 -232, -6 -200 L -50 -206 C -56 -236, -44 -262, -34 -282 Z", fill: o.scarf, stroke: INK, "stroke-width": 4 }, head);
+          else el("path", { d: "M -22 -270 C -24 -302, 24 -310, 36 -282 C 22 -292, 6 -288, 0 -276 C -2 -262, -6 -250, -18 -244 C -28 -252, -26 -262, -22 -270 Z", fill: o.hair || "#5c3a26", stroke: INK, "stroke-width": 3 }, head);
+          const arm = el("g", {}, body);
+          el("path", { d: "M 22 -214 C 40 -186, 54 -160, 66 -136", fill: "none", stroke: robeC, "stroke-width": 20, "stroke-linecap": "round" }, arm);
+          if (o.coat) el("path", { d: "M 22 -214 C 40 -186, 54 -160, 66 -136", fill: "none", stroke: "#3f6aa8", "stroke-width": 20, "stroke-linecap": "round" }, arm);
+          el("circle", { cx: 68, cy: -132, r: 10, fill: "#c99a78", stroke: INK, "stroke-width": 3 }, arm);
+          if (o.staff) el("path", { d: "M 72 -320 C 66 -220, 72 -110, 68 0", fill: "none", stroke: "#6b4a2a", "stroke-width": 8, "stroke-linecap": "round" }, arm);
+          return { g, body, head, arm, stripes };
+        }
+
+        function buildSheaf(root, gold, scale) {
+          const o = el("g", { transform: `scale(${scale})` }, root);
+          const g = el("g", { class: "crayon" }, o);
+          el("path", { d: "M -46 0 L -20 -110 L -60 -230 L 60 -230 L 20 -110 L 46 0 Z", fill: gold, stroke: INK, "stroke-width": 5 }, g);
+          for (let i = -4; i <= 4; i++) el("path", { d: `M ${i * 6} -110 L ${i * 12} -228`, stroke: "#b48a3a", "stroke-width": 3 }, g);
+          for (let i = -5; i <= 5; i++) el("ellipse", { cx: i * 12, cy: -244 - Math.abs(i) * -2, rx: 7, ry: 16, fill: gold, stroke: INK, "stroke-width": 2.5, transform: `rotate(${i * 8} ${i * 12} -236)` }, g);
+          el("rect", { x: -26, y: -122, width: 52, height: 18, rx: 6, fill: "#8a5a3c", stroke: INK, "stroke-width": 3 }, g);
+          return o;
+        }
+        function star(root, x, y, r, fill) {
+          const o = el("g", { transform: `translate(${x} ${y})` }, root);
+          const g = el("g", {}, o);
+          let d = "";
+          for (let i = 0; i < 10; i++) {
+            const a = -Math.PI / 2 + (i * Math.PI) / 5, rr = i % 2 ? r * 0.45 : r;
+            d += `${i ? "L" : "M"} ${(rr * Math.cos(a)).toFixed(1)} ${(rr * Math.sin(a)).toFixed(1)} `;
+          }
+          el("path", { d: d + "Z", fill, stroke: INK, "stroke-width": 3, filter: "url(#glow)" }, g);
+          return g;
+        }
+
+        // ---------- A ----------
+        (function () {
+          const g = $("#sA-tents");
+          [[-120, 650, 1.3, "#e9d9b8"], [180, 640, 1.1, "#d9c2a0"], [440, 655, 1.0, "#e9d9b8"]].forEach(([x, y, s, c]) => {
+            const t = el("g", { transform: `translate(${x} ${y}) scale(${s})`, class: "crayon" }, g);
+            el("path", { d: "M -130 0 L 0 -150 L 130 0 Z", fill: c, stroke: INK, "stroke-width": 5 }, t);
+            el("path", { d: "M -20 0 L 0 -60 L 20 0 Z", fill: "#5a3a2c" }, t);
+            el("path", { d: "M 0 -150 L 0 -190", stroke: INK, "stroke-width": 5 }, t);
+          });
+          const sh = $("#sA-sheep"), r = rng(9);
+          for (let i = 0; i < 7; i++) {
+            const x = 1250 + r() * 600, y = 700 + r() * 40;
+            el("path", { d: cloudPath(x, y, 30, 20, 7, 0.7), fill: "#fbf8f0", stroke: INK, "stroke-width": 3 }, sh);
+            el("ellipse", { cx: x + 30, cy: y - 6, rx: 10, ry: 12, fill: "#3b3340" }, sh);
+          }
+        })();
+        const jacobA = buildPerson($("#sA-jacob"), { robe: "#6b4e6e", scarf: "#e9dcc4", beard: "#f2efe8", seated: true, staff: true });
+        const josephA = buildPerson($("#sA-joseph"), { robe: "#efe6d4", hair: "#5c3a26", coat: true });
+        const brosA = [];
+        [[1220, 905, 0.92, "#7a5a3a", "#d9c2a0"], [1340, 890, 0.95, "#5a6a4a", "#c9b08a"], [1460, 910, 0.9, "#8a4a3a", "#e3d0b0"], [1580, 895, 0.96, "#4a5a6a", "#d4c0a0"], [1700, 912, 0.9, "#6a5a7a", "#cdb894"], [1820, 900, 0.94, "#7a6a3a", "#dcc8a6"]].forEach(([x, y, s, robe, scarf]) => {
+          const o = el("g", { transform: `translate(${x} ${y}) scale(${-s} ${s})` }, $("#sA-brothers"));
+          const b = buildPerson(o, { robe, scarf, staff: true });
+          b.outer = o; b.turned = `translate(${x} ${y}) scale(${s} ${s})`;
+          brosA.push(b);
+        });
+        (function () {
+          const g = $("#sA-cloud"), r = rng(41);
+          let d = "M 1180 330";
+          for (let i = 0; i < 42; i++) d += ` q ${(18 + r() * 30).toFixed(0)} ${(-30 + r() * 60).toFixed(0)} ${(30 + r() * 20).toFixed(0)} ${(-10 + r() * 20).toFixed(0)} q ${(-10 - r() * 30).toFixed(0)} ${(20 + r() * 30).toFixed(0)} ${(-14 - r() * 20).toFixed(0)} ${(6 - r() * 12).toFixed(0)}`;
+          el("path", { id: "sA-cloud-path", d, pathLength: 1 }, g);
+          el("path", { class: "sA-cloud-2", d, pathLength: 1, transform: "translate(30 34)" }, g);
+          el("path", { class: "sA-cloud-2", d, pathLength: 1, transform: "translate(-20 64)" }, g);
+        })();
+
+        // ---------- B ----------
+        (function () {
+          const g = $("#sB-stubble"), r = rng(2);
+          for (let i = 0; i < 60; i++) {
+            const x = r() * 1920, y = 720 + r() * 340;
+            el("path", { d: `M ${x} ${y} l -4 -14 M ${x + 6} ${y} l 2 -16` }, g);
+          }
+        })();
+        const sheaves = [];
+        const center = el("g", { transform: "translate(960 760)" }, $("#sB-sheaves"));
+        const centerIn = el("g", {}, center);
+        buildSheaf(centerIn, "#ffd36a", 1.15);
+        for (let i = 0; i < 11; i++) {
+          const a = Math.PI * (0.06 + (0.88 * i) / 10), x = 960 + Math.cos(a) * 760, y = 980 - Math.sin(a) * 210;
+          const o = el("g", { transform: `translate(${x.toFixed(0)} ${y.toFixed(0)})` }, $("#sB-sheaves"));
+          const s = el("g", {}, o);
+          buildSheaf(s, "#e2b65a", 0.72);
+          sheaves.push({ s, dir: x < 960 ? 1 : -1 });
+        }
+
+        // ---------- C ----------
+        (function () {
+          const g = $("#sC-dust"), r = rng(31);
+          for (let i = 0; i < 90; i++) el("circle", { cx: r() * 1920, cy: r() * 1080, r: 1 + r() * 2.2, fill: "#f7f0e1", opacity: 0.25 + r() * 0.5 }, g);
+          const c = $("#sC-center");
+          el("circle", { r: 70, fill: "#fff3c4", opacity: 0.35, filter: "url(#glow2)" }, c);
+          const jo = el("g", { transform: "scale(0.55)" }, c);
+          buildPerson(jo, { robe: "#efe6d4", hair: "#5c3a26", coat: true }).stripes.forEach(() => {});
+        })();
+        const bowers = [];
+        (function () {
+          const g = $("#sC-bowers");
+          const sun = el("g", { transform: "translate(420 300)" }, g);
+          const sunIn = el("g", {}, sun);
+          el("circle", { r: 90, fill: "#ffcf5a", stroke: INK, "stroke-width": 5, filter: "url(#glow2)" }, sunIn);
+          bowers.push(sunIn);
+          const moon = el("g", { transform: "translate(1500 300)" }, g);
+          const moonIn = el("g", {}, moon);
+          el("path", { d: "M 0 -80 A 80 80 0 1 0 0 80 A 60 60 0 1 1 0 -80 Z", fill: "#f4eac8", stroke: INK, "stroke-width": 5, filter: "url(#glow)" }, moonIn);
+          bowers.push(moonIn);
+          for (let i = 0; i < 11; i++) {
+            const a = Math.PI * (1.08 + (0.84 * i) / 10), x = 960 + Math.cos(a) * 620, y = 640 + Math.sin(a) * 380;
+            bowers.push(star(g, x, y, 34, "#fff1b0"));
+          }
+        })();
+
+        // ---------- D ----------
+        (function () {
+          const l = $("#sD-lamp");
+          el("path", { d: "M -60 40 C -40 70, 40 70, 60 40 L 40 20 L -40 20 Z", fill: "#a8703c", stroke: INK, "stroke-width": 4 }, l);
+          el("path", { id: "sD-flame", d: "M 0 -50 C 16 -30, 20 -12, 12 0 C 6 8, -6 8, -12 0 C -20 -12, -16 -30, 0 -50 Z", fill: "#ffc35a", stroke: INK, "stroke-width": 3 }, l);
+        })();
+        const jacobD = buildPerson($("#sD-jacob"), { robe: "#6b4e6e", scarf: "#e9dcc4", beard: "#f2efe8", seated: true });
+        const josephD = buildPerson($("#sD-joseph"), { robe: "#efe6d4", hair: "#5c3a26", coat: true });
+
+        // ---------- E ----------
+        const josephE = buildPerson($("#sE-joseph"), { robe: "#efe6d4", hair: "#5c3a26", coat: true });
+        const brosE = [];
+        [[1080, 1160, 1.6, "#3e3040", "#5a4a50"], [1330, 1180, 1.7, "#352a38", "#4e4048"], [1580, 1150, 1.6, "#3a2e3c", "#564650"], [1820, 1170, 1.75, "#30262f", "#4a3c44"]].forEach(([x, y, s, robe, scarf]) => {
+          const o = el("g", { transform: `translate(${x} ${y}) scale(${-s} ${s})` }, $("#sE-brothers"));
+          brosE.push(buildPerson(o, { robe, scarf, staff: true }));
+        });
+        (function () {
+          const g = $("#sE-cloud"), r = rng(77);
+          let d = "M 980 300";
+          for (let i = 0; i < 46; i++) d += ` q ${(18 + r() * 30).toFixed(0)} ${(-30 + r() * 60).toFixed(0)} ${(30 + r() * 20).toFixed(0)} ${(-10 + r() * 20).toFixed(0)} q ${(-10 - r() * 30).toFixed(0)} ${(20 + r() * 30).toFixed(0)} ${(-14 - r() * 20).toFixed(0)} ${(6 - r() * 12).toFixed(0)}`;
+          el("path", { id: "sE-cloud-path", d, pathLength: 1 }, g);
+          el("path", { class: "sE-cloud-2", d, pathLength: 1, transform: "translate(30 34)" }, g);
+          el("path", { class: "sE-cloud-2", d, pathLength: 1, transform: "translate(-20 64)" }, g);
+        })();
+
+        // ---------- subtitles ----------
+        const subs = $("#subs");
+        const subEls = LINES.map(([t, d, text, verse], i) => {
+          const div = document.createElement("div");
+          div.className = "sub";
+          div.innerHTML = text.replace(/'([^']+)'/g, "<span class='q'>$1</span>") + (REFS[i] ? `<span class="ref">${REFS[i]}</span>` : "");
+          subs.appendChild(div);
+          return div;
+        });
+
+        // ---------- camera ----------
+        function camera(world) {
+          const st = { S: 1, ox: 0, oy: 0 };
+          const apply = () => {
+            world.style.transform = `translate(${(-st.ox * st.S).toFixed(2)}px, ${(-st.oy * st.S).toFixed(2)}px) scale(${st.S.toFixed(4)})`;
+            world.classList.toggle("nofx", st.S > 2.2);
+          };
+          apply();
+          return {
+            st,
+            set(v) { Object.assign(st, v); apply(); },
+            to(tl, from, to, at, dur, ease, log) {
+              const p = { v: 0 };
+              tl.fromTo(p, { v: 0 }, { v: 1, duration: dur, ease, onUpdate() {
+                st.ox = from.ox + (to.ox - from.ox) * p.v;
+                st.oy = from.oy + (to.oy - from.oy) * p.v;
+                st.S = log ? from.S * Math.pow(to.S / from.S, p.v) : from.S + (to.S - from.S) * p.v;
+                apply();
+              } }, at);
+            },
+          };
+        }
+        const cam = { A: camera($("#sA-world")), B: camera($("#sB-world")), C: camera($("#sC-world")), D: camera($("#sD-world")), E: camera($("#sE-world")) };
+        cam.A.set({ ox: -420, oy: 60, S: 1.25 });
+        cam.D.set({ ox: 0, oy: -40, S: 10 });
+
+        // ---------- timeline ----------
+        const tl = gsap.timeline({ paused: true });
+        tl.fromTo("#rough-turb", { attr: { seed: 1 } }, { attr: { seed: 625 }, duration: 78, ease: "steps(624)" }, 0);
+        tl.fromTo("#crayon-turb", { attr: { seed: 1 } }, { attr: { seed: 625 }, duration: 78, ease: "steps(624)" }, 0);
+        tl.fromTo("#grain-turb", { attr: { seed: 3 } }, { attr: { seed: 939 }, duration: 78, ease: "steps(936)" }, 0);
+
+        // subtitles: fade in at the line's start, out at its end
+        LINES.forEach(([t, d], i) => {
+          tl.fromTo(subEls[i], { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, t);
+          tl.to(subEls[i], { opacity: 0, duration: 0.3, ease: "power1.in" }, t + d - 0.3);
+        });
+
+        // ===== A (0 – 44.4) =====
+        tl.fromTo("#sA .fade", { opacity: 0 }, { opacity: 1, duration: 1.0, ease: "sine.out" }, 0);
+        tl.fromTo("#chap", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.5)" }, 0.6);
+        tl.to("#chap", { opacity: 0, duration: 0.6 }, 6.0);
+        cam.A.to(tl, { ox: -420, oy: 60, S: 1.25 }, { ox: -60, oy: 60, S: 1.1 }, 0.2, 5.0, "sine.inOut");
+        cam.A.to(tl, { ox: -60, oy: 60, S: 1.1 }, { ox: -130, oy: 120, S: 1.6 }, 13.6, 4.0, "power2.inOut");
+        josephA.stripes.forEach((s, i) => tl.fromTo(s, { scaleX: 0, transformOrigin: "0% 50%" }, { scaleX: 1, transformOrigin: "0% 50%", duration: 0.5, ease: "power2.out" }, 16.6 + i * 0.35));
+        tl.fromTo(jacobA.arm, { rotation: 0, svgOrigin: "22 -214" }, { rotation: -40, svgOrigin: "22 -214", duration: 0.6, ease: "back.out(1.8)" }, 15.6);
+        tl.fromTo(josephA.body, { rotation: 0, svgOrigin: "0 0" }, { rotation: -4, svgOrigin: "0 0", duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 3 }, 20.0);
+        cam.A.to(tl, { ox: -130, oy: 120, S: 1.6 }, { ox: 0, oy: 60, S: 1.1 }, 25.6, 4.0, "power2.inOut");
+        cam.A.to(tl, { ox: 0, oy: 60, S: 1.1 }, { ox: 520, oy: 60, S: 1.25 }, 31.0, 3.5, "power2.inOut");
+        tl.fromTo("#sA-envy", { opacity: 0 }, { opacity: 1, duration: 2.5, ease: "sine.inOut" }, 31.2);
+        tl.fromTo("#sA-cloud", { opacity: 0 }, { opacity: 0.85, duration: 0.3 }, 32.0);
+        tl.fromTo(["#sA-cloud-path", ".sA-cloud-2"], { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 3.0, ease: "power1.inOut" }, 32.0);
+        brosA.forEach((b, i) => {
+          const t = 38.9 + i * 0.15;
+          tl.set(b.outer, { attr: { transform: b.turned } }, t);   // turn their backs
+          tl.fromTo(b.body, { y: 0 }, { y: -12, duration: 0.12, ease: "power1.out", yoyo: true, repeat: 1, immediateRender: false }, t);
+        });
+        cam.A.to(tl, { ox: 520, oy: 60, S: 1.25 }, { ox: -140, oy: 20, S: 1.7 }, 41.0, 3.0, "power2.inOut");
+        tl.to("#sA .fade", { opacity: 0, filter: "blur(14px)", duration: 0.9, ease: "sine.in" }, 43.5);
+
+        // ===== B (43.9 – 55.2) — dream of sheaves =====
+        tl.fromTo("#sB .fade", { opacity: 0, filter: "blur(14px)" }, { opacity: 1, filter: "blur(0px)", duration: 1.0, ease: "sine.out" }, 43.95);
+        cam.B.to(tl, { ox: 0, oy: 0, S: 1.12 }, { ox: 0, oy: 0, S: 1 }, 43.9, 5.0, "sine.out");
+        sheaves.forEach((sv, i) => tl.fromTo(sv.s, { rotation: -2, svgOrigin: "0 0" }, { rotation: 2, svgOrigin: "0 0", duration: 0.9 + (i % 3) * 0.2, ease: "sine.inOut", yoyo: true, repeat: 3 }, 44.0 + i * 0.05));
+        tl.fromTo(centerIn, { scaleY: 0.85, svgOrigin: "0 0" }, { scaleY: 1.25, svgOrigin: "0 0", duration: 1.0, ease: "back.out(1.6)" }, 48.6);
+        tl.fromTo("#sB-glow", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 1.2, ease: "power2.out" }, 48.6);
+        sheaves.forEach((sv, i) => tl.to(sv.s, { rotation: 32 * sv.dir, svgOrigin: "0 0", duration: 0.7, ease: "power2.inOut" }, 51.6 + Math.abs(5 - i) * 0.06));
+        tl.fromTo("#sB-dusk", { opacity: 0 }, { opacity: 0.9, duration: 0.9, ease: "power1.in" }, 54.2);
+
+        // ===== C (54.6 – 60.6) — sun, moon and eleven stars =====
+        tl.fromTo("#sC .fade", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "sine.inOut" }, 54.65);
+        bowers.forEach((b, i) => tl.fromTo(b, { scale: 0, svgOrigin: "0 0" }, { scale: 1, svgOrigin: "0 0", duration: 0.45, ease: "back.out(2.2)" }, 54.9 + i * 0.06));
+        bowers.forEach((b, i) => tl.fromTo(b, { scaleY: 1, rotation: 0, svgOrigin: "0 0" }, { scaleY: 0.82, rotation: i % 2 ? 14 : -14, svgOrigin: "0 0", duration: 0.6, ease: "power2.inOut", immediateRender: false }, 57.0 + i * 0.04)); // no x/y with svgOrigin (observation 0001)
+        cam.C.to(tl, { ox: 0, oy: 160, S: 1 }, { ox: 0, oy: 160, S: 14 }, 59.6, 0.9, "power2.in", true);
+        tl.fromTo("#sC-flood", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.in" }, 60.15);
+
+        // ===== D (60.1 – 70.6) — Jacob rebukes, then ponders =====
+        tl.fromTo("#sD .fade", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 60.3);
+        cam.D.to(tl, { ox: 0, oy: -40, S: 10 }, { ox: 0, oy: 0, S: 1 }, 60.3, 1.4, "power3.out", true);
+        tl.fromTo("#sD-flame", { scaleY: 0.88, skewX: -4, svgOrigin: "0 0" }, { scaleY: 1.1, skewX: 4, svgOrigin: "0 0", duration: 0.22, ease: "sine.inOut", yoyo: true, repeat: 43 }, 60.3);
+        tl.fromTo("#sD-lamp-glow", { scale: 0.92 }, { scale: 1.06, duration: 0.7, ease: "sine.inOut", yoyo: true, repeat: 13 }, 60.3);
+        tl.fromTo(jacobD.arm, { rotation: 0, svgOrigin: "22 -214" }, { rotation: -70, svgOrigin: "22 -214", duration: 0.4, ease: "back.out(2)" }, 61.4);
+        tl.fromTo(josephD.head, { rotation: 0, svgOrigin: "10 -236" }, { rotation: 14, svgOrigin: "10 -236", duration: 0.5, ease: "power2.out" }, 61.9);
+        tl.to(jacobD.arm, { rotation: 18, svgOrigin: "22 -214", duration: 0.8, ease: "sine.inOut" }, 65.2);
+        tl.fromTo("#sD-heart", { opacity: 0, attr: { r: 6 } }, { opacity: 1, attr: { r: 18 }, duration: 0.8, ease: "power2.out" }, 65.8);
+        tl.to("#sD-heart", { attr: { r: 24 }, duration: 0.7, ease: "sine.inOut", yoyo: true, repeat: 3 }, 66.6);
+        tl.to("#sD-fade", { x: -1920, duration: 0.6, ease: "power3.in" }, 69.9);
+
+        // ===== E (70.1 – 78) — "Here comes this dreamer" =====
+        tl.fromTo("#sE-fade", { x: 1920 }, { x: 0, duration: 0.6, ease: "power3.out" }, 70.1);
+        cam.E.to(tl, { ox: 0, oy: 0, S: 1 }, { ox: -200, oy: -60, S: 1.12 }, 70.7, 7.0, "sine.inOut");
+        tl.fromTo("#sE-joseph", { x: 0 }, { x: 600, duration: 7.2, ease: "none" }, 70.6);
+        tl.fromTo(josephE.body, { y: 0 }, { y: -10, duration: 0.25, ease: "sine.inOut", yoyo: true, repeat: 27 }, 70.6);
+        tl.fromTo("#sE-cloud", { opacity: 0 }, { opacity: 0.85, duration: 0.3 }, 71.0);
+        tl.fromTo(["#sE-cloud-path", ".sE-cloud-2"], { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 2.6, ease: "power1.inOut" }, 71.0);
+        brosE.forEach((b, i) => tl.fromTo(b.head, { rotation: 0, svgOrigin: "10 -236" }, { rotation: -8, svgOrigin: "10 -236", duration: 0.6, ease: "power2.out" }, 73.4 + i * 0.12));
+        tl.to("#sE-fade", { opacity: 0, duration: 0.9, ease: "sine.in" }, 77.0);
+
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>
